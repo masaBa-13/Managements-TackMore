@@ -19,7 +19,7 @@ export default function Layout() {
   const isDashboard = location.pathname === '/'
 
   return (
-    <div className={`flex min-h-screen ${isDashboard ? 'bg-[#0d0d1a]' : 'bg-gray-50'}`}>
+    <div className={`flex min-h-screen ${isDashboard ? 'bg-[#000000]' : 'bg-gray-50'}`}>
       {/* サイドバー: デスクトップのみ */}
       <div className="hidden md:block">
         <Sidebar dark={isDashboard} />
@@ -30,7 +30,7 @@ export default function Layout() {
         <header
           className={`px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-10 ${
             isDashboard
-              ? 'bg-[#0d0d1a]/80 backdrop-blur-xl border-b border-white/5'
+              ? 'bg-[#000000]/80 backdrop-blur-xl border-b border-white/5'
               : 'bg-white border-b border-gray-200'
           }`}
           style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}

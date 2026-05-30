@@ -23,7 +23,7 @@ export default function Sidebar({ dark = false }: { dark?: boolean }) {
     <aside className={clsx(
       'w-56 min-h-screen flex flex-col transition-colors',
       dark
-        ? 'bg-[#0a0a18] border-r border-white/5'
+        ? 'bg-[#000000] border-r border-white/5'
         : 'bg-white border-r border-gray-200'
     )}>
       {/* Brand */}
@@ -54,7 +54,7 @@ export default function Sidebar({ dark = false }: { dark?: boolean }) {
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                 dark
                   ? isActive
-                    ? 'bg-fuchsia-500/15 text-fuchsia-300'
+                    ? 'bg-white/10 text-white'
                     : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
                   : isActive
                     ? 'bg-indigo-50 text-indigo-700'

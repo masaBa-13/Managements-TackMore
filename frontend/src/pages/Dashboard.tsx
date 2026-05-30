@@ -37,7 +37,7 @@ function formatDate(dateStr: string): string {
 function DarkTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1a1a2e]/95 backdrop-blur border border-white/10 rounded-lg px-3 py-2 shadow-xl">
+    <div className="bg-[#1a1a1a]/95 backdrop-blur border border-white/10 rounded-lg px-3 py-2 shadow-xl">
       <div className="text-xs text-gray-400 mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="flex items-center gap-2 text-xs">
@@ -119,13 +119,13 @@ export default function Dashboard() {
   const taskDonutData = [
     { name: '完了', value: doneTasks, color: '#d946ef' },
     { name: '進行中', value: inProgressTasks, color: '#a855f7' },
-    { name: '未着手', value: totalTasks - doneTasks - inProgressTasks, color: '#2a2a3e' },
+    { name: '未着手', value: totalTasks - doneTasks - inProgressTasks, color: '#2a2a2a' },
   ].filter(d => d.value > 0)
 
   const netIncome = (summary?.income_total ?? 0) - (summary?.expense_total ?? 0)
 
   return (
-    <div className="min-h-screen -m-4 md:-m-6 p-4 md:p-6 bg-[#0d0d1a]">
+    <div className="min-h-screen -m-4 md:-m-6 p-4 md:p-6 bg-[#000000]">
       {/* Reminder banner */}
       {summary?.balance_reminder_needed && (
         <div className="mb-4 bg-gradient-to-r from-rose-500/20 to-pink-500/20 border border-rose-500/30 rounded-xl px-4 py-3 flex items-center justify-between backdrop-blur">
@@ -145,7 +145,7 @@ export default function Dashboard() {
       {/* KPI Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         {/* Balance */}
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-fuchsia-500/30 transition-colors">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-fuchsia-500/30 transition-colors">
           <div className="absolute top-0 right-0 w-20 h-20 bg-fuchsia-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">残高</div>
           <div className="text-xl md:text-2xl font-bold text-white tracking-tight">
@@ -157,7 +157,7 @@ export default function Dashboard() {
         </div>
 
         {/* Income */}
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
           <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">今月収入</div>
           <div className="text-xl md:text-2xl font-bold text-emerald-400 tracking-tight">
@@ -170,7 +170,7 @@ export default function Dashboard() {
         </div>
 
         {/* Expense */}
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-rose-500/30 transition-colors">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-rose-500/30 transition-colors">
           <div className="absolute top-0 right-0 w-20 h-20 bg-rose-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">今月支出</div>
           <div className="text-xl md:text-2xl font-bold text-rose-400 tracking-tight">
@@ -183,7 +183,7 @@ export default function Dashboard() {
         </div>
 
         {/* Runway */}
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-amber-500/30 transition-colors">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-amber-500/30 transition-colors">
           <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">ランウェイ</div>
           <div className="text-xl md:text-2xl font-bold text-amber-400 tracking-tight">
@@ -197,7 +197,7 @@ export default function Dashboard() {
 
       {/* Main Chart */}
       {trend.length > 0 && (
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-5 mb-5">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-5 mb-5">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-sm font-semibold text-white tracking-wide">収支・残高推移</h2>
@@ -233,7 +233,7 @@ export default function Dashboard() {
             {canScrollLeft && (
               <button
                 onClick={() => scrollChart('left')}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-[#1a1a2e]/90 border border-white/10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-[#1a1a1a]/90 border border-white/10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
               >
                 <ChevronLeft size={14} className="text-gray-400" />
               </button>
@@ -241,7 +241,7 @@ export default function Dashboard() {
             {canScrollRight && (
               <button
                 onClick={() => scrollChart('right')}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-[#1a1a2e]/90 border border-white/10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-[#1a1a1a]/90 border border-white/10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
               >
                 <ChevronRight size={14} className="text-gray-400" />
               </button>
@@ -265,19 +265,19 @@ export default function Dashboard() {
                         <stop offset="100%" stopColor="#f43f5e" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="balanceGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.4} />
-                        <stop offset="100%" stopColor="#a78bfa" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#60a5fa" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="#60a5fa" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
                     <XAxis
                       dataKey="month"
-                      tick={{ fontSize: 10, fill: '#4a4a6a' }}
+                      tick={{ fontSize: 10, fill: '#555555' }}
                       axisLine={{ stroke: '#ffffff08' }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 10, fill: '#4a4a6a' }}
+                      tick={{ fontSize: 10, fill: '#555555' }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) => `${(v / 10000).toFixed(0)}万`}
@@ -288,7 +288,7 @@ export default function Dashboard() {
                       <Bar dataKey="forecast_income" fill="#d946ef33" stroke="#d946ef66" strokeWidth={1} name="入金見込み" radius={[3, 3, 0, 0]} />
                     )}
                     <Area type="monotone" dataKey="expense" fill="url(#expenseGrad)" stroke="#f43f5e" strokeWidth={1.5} name="支出" dot={false} />
-                    <Area type="monotone" dataKey="balance" fill="url(#balanceGrad)" stroke="#a78bfa" strokeWidth={2.5} name="残高" connectNulls dot={false} />
+                    <Area type="monotone" dataKey="balance" fill="url(#balanceGrad)" stroke="#60a5fa" strokeWidth={2.5} name="残高" connectNulls dot={false} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
@@ -305,7 +305,7 @@ export default function Dashboard() {
               <span className="text-[10px] text-gray-500">支出</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-[2px] bg-violet-400 rounded" />
+              <span className="w-3 h-[2px] bg-sky-400 rounded" />
               <span className="text-[10px] text-gray-500">残高</span>
             </div>
             {includeForecast && (
@@ -321,7 +321,7 @@ export default function Dashboard() {
       {/* Bottom Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Cash Summary */}
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-5">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 bg-fuchsia-500/10 rounded-lg flex items-center justify-center">
               <DollarSign size={14} className="text-fuchsia-400" />
@@ -364,10 +364,10 @@ export default function Dashboard() {
         </div>
 
         {/* Task Progress - Donut */}
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-5">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 bg-violet-500/10 rounded-lg flex items-center justify-center">
-              <CheckSquare size={14} className="text-violet-400" />
+            <div className="w-7 h-7 bg-sky-500/10 rounded-lg flex items-center justify-center">
+              <CheckSquare size={14} className="text-sky-400" />
             </div>
             <h3 className="text-xs font-semibold text-white tracking-wide uppercase">タスク進捗</h3>
             <span className="ml-auto text-[10px] text-gray-600">{totalTasks} TASKS</span>
@@ -379,7 +379,7 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={taskDonutData.length > 0 ? taskDonutData : [{ name: '-', value: 1, color: '#2a2a3e' }]}
+                      data={taskDonutData.length > 0 ? taskDonutData : [{ name: '-', value: 1, color: '#2a2a2a' }]}
                       cx="50%"
                       cy="50%"
                       innerRadius={30}
@@ -387,7 +387,7 @@ export default function Dashboard() {
                       dataKey="value"
                       strokeWidth={0}
                     >
-                      {(taskDonutData.length > 0 ? taskDonutData : [{ name: '-', value: 1, color: '#2a2a3e' }]).map((entry, i) => (
+                      {(taskDonutData.length > 0 ? taskDonutData : [{ name: '-', value: 1, color: '#2a2a2a' }]).map((entry, i) => (
                         <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
@@ -408,14 +408,14 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-violet-500" />
+                    <span className="w-2 h-2 rounded-full bg-sky-500" />
                     <span className="text-[11px] text-gray-400">進行中</span>
                   </div>
                   <span className="text-sm font-bold text-white">{inProgressTasks}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#2a2a3e]" />
+                    <span className="w-2 h-2 rounded-full bg-[#2a2a2a]" />
                     <span className="text-[11px] text-gray-400">未着手</span>
                   </div>
                   <span className="text-sm font-bold text-white">{totalTasks - doneTasks - inProgressTasks}</span>
@@ -437,7 +437,7 @@ export default function Dashboard() {
         </div>
 
         {/* Alerts combined */}
-        <div className="bg-[#12122a] border border-white/5 rounded-xl p-5">
+        <div className="bg-[#111111] border border-white/5 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 bg-rose-500/10 rounded-lg flex items-center justify-center">
               <AlertCircle size={14} className="text-rose-400" />
@@ -542,16 +542,16 @@ export default function Dashboard() {
 
       {/* Market Notes - bottom bar */}
       {marketNotes && marketNotes.length > 0 && (
-        <div className="mt-4 bg-[#12122a] border border-white/5 rounded-xl p-4">
+        <div className="mt-4 bg-[#111111] border border-white/5 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 bg-purple-500/10 rounded flex items-center justify-center">
-              <TrendingUp size={12} className="text-purple-400" />
+            <div className="w-6 h-6 bg-gray-500/10 rounded flex items-center justify-center">
+              <TrendingUp size={12} className="text-gray-400" />
             </div>
             <h3 className="text-[10px] font-semibold text-gray-500 tracking-widest uppercase">市場メモ</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {marketNotes.slice(0, 3).map((note) => (
-              <div key={note.id} className="bg-white/[0.02] border border-white/5 rounded-lg p-3 hover:border-purple-500/20 transition-colors">
+              <div key={note.id} className="bg-white/[0.02] border border-white/5 rounded-lg p-3 hover:border-gray-500/20 transition-colors">
                 <div className="text-[11px] font-medium text-gray-200 truncate">{note.title}</div>
                 <div className="text-[10px] text-gray-600 mt-1">
                   {new Date(note.created_at).toLocaleDateString('ja-JP')}
@@ -559,7 +559,7 @@ export default function Dashboard() {
                 {note.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {note.tags.map((tag) => (
-                      <span key={tag} className="bg-purple-500/10 text-purple-300/70 text-[9px] px-1.5 py-0.5 rounded">
+                      <span key={tag} className="bg-gray-500/10 text-gray-300/70 text-[9px] px-1.5 py-0.5 rounded">
                         {tag}
                       </span>
                     ))}
