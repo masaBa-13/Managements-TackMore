@@ -100,6 +100,7 @@ export interface FinanceSummary {
 
 export type Bindings = {
   DB: D1Database
+  BYPASS_AUTH?: string
 }
 
 export type Variables = {

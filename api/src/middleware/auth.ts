@@ -14,6 +14,13 @@ export const authMiddleware = async (
     email
 
   if (!email) {
+    // BYPASS_AUTH=true のときは認証をスキップ（Cloudflare Access未設定時の一時対応）
+    if (c.env.BYPASS_AUTH === 'true') {
+      c.set('userEmail', 'admin@tackmore.com')
+      c.set('userName', 'Admin')
+      await next()
+      return
+    }
     return c.json({ error: '認証が必要です' }, 401)
   }
 
