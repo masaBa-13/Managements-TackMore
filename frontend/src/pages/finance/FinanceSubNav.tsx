@@ -3,7 +3,7 @@ import { clsx } from 'clsx'
 
 const tabs = [
   { to: '/finance', label: '収支', end: true },
-  { to: '/finance/fixed', label: '固定費' },
+  { to: '/finance/fixed', label: '定期収支' },
   { to: '/finance/balance', label: '口座残高' },
   { to: '/finance/invoices', label: '請求書' },
   { to: '/finance/budget', label: '予算管理' },

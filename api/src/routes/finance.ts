@@ -119,6 +119,7 @@ finance.get('/fixed-expenses', async (c) => {
 finance.post('/fixed-expenses', async (c) => {
   const body = await c.req.json<{
     name: string
+    type?: 'income' | 'expense'
     category: string
     amount: number
     billing_day?: number
@@ -132,11 +133,12 @@ finance.post('/fixed-expenses', async (c) => {
   }
 
   const result = await c.env.DB.prepare(
-    `INSERT INTO fixed_expenses (name, category, amount, billing_day, note, start_month, end_month, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO fixed_expenses (name, type, category, amount, billing_day, note, start_month, end_month, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       body.name,
+      body.type ?? 'expense',
       body.category,
       body.amount,
       body.billing_day ?? 1,
@@ -159,6 +161,7 @@ finance.patch('/fixed-expenses/:id', async (c) => {
   const id = parseInt(c.req.param('id'))
   const body = await c.req.json<{
     name?: string
+    type?: 'income' | 'expense'
     category?: string
     amount?: number
     billing_day?: number
@@ -180,6 +183,7 @@ finance.patch('/fixed-expenses/:id', async (c) => {
   const params: unknown[] = []
 
   if (body.name !== undefined) { updates.push('name = ?'); params.push(body.name) }
+  if (body.type !== undefined) { updates.push('type = ?'); params.push(body.type) }
   if (body.category !== undefined) { updates.push('category = ?'); params.push(body.category) }
   if (body.amount !== undefined) { updates.push('amount = ?'); params.push(body.amount) }
   if (body.billing_day !== undefined) { updates.push('billing_day = ?'); params.push(body.billing_day) }

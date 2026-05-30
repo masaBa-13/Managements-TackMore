@@ -16,6 +16,7 @@ export interface Transaction {
 export interface FixedExpense {
   id: number
   name: string
+  type: 'income' | 'expense'
   category: string
   amount: number
   billing_day: number
@@ -115,6 +116,7 @@ export async function fetchFixedExpenses(): Promise<FixedExpense[]> {
 
 export async function createFixedExpense(data: {
   name: string
+  type?: 'income' | 'expense'
   category: string
   amount: number
   billing_day?: number
@@ -136,6 +138,7 @@ export async function createFixedExpense(data: {
 
 export async function updateFixedExpense(id: number, data: Partial<{
   name: string
+  type: 'income' | 'expense'
   category: string
   amount: number
   billing_day: number

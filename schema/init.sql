@@ -16,9 +16,11 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE TABLE IF NOT EXISTS fixed_expenses (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'expense'
+    CHECK(type IN ('income', 'expense')),      -- 定期収入 or 定期支出
   category TEXT NOT NULL,
   amount INTEGER NOT NULL,
-  billing_day INTEGER NOT NULL DEFAULT 1,      -- 引き落とし日（月初展開時は1日固定）
+  billing_day INTEGER NOT NULL DEFAULT 1,      -- 引き落とし日/入金日
   is_active INTEGER NOT NULL DEFAULT 1,
   note TEXT,
   start_month TEXT NOT NULL,                   -- YYYY-MM

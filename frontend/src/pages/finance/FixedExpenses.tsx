@@ -16,6 +16,7 @@ function formatYen(amount: number): string {
 
 interface FormState {
   name: string
+  type: 'income' | 'expense'
   category: string
   amount: string
   billing_day: string
@@ -26,6 +27,7 @@ interface FormState {
 
 const emptyForm: FormState = {
   name: '',
+  type: 'expense',
   category: '',
   amount: '',
   billing_day: '1',
@@ -60,8 +62,19 @@ function FixedExpenseForm({
             value={form.name}
             onChange={(e) => set('name', e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
-            placeholder="例: AWS費用"
+            placeholder="例: AWS費用, HP管理費"
           />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">種別</label>
+          <select
+            value={form.type}
+            onChange={(e) => set('type', e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+          >
+            <option value="expense">支出（定期支払）</option>
+            <option value="income">収入（定期入金）</option>
+          </select>
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">カテゴリ</label>
@@ -83,7 +96,7 @@ function FixedExpenseForm({
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">引き落とし日</label>
+          <label className="block text-xs text-gray-500 mb-1">引き落とし/入金日</label>
           <input
             type="number"
             min={1}
@@ -151,6 +164,7 @@ export default function FixedExpenses() {
     mutationFn: (form: FormState) =>
       createFixedExpense({
         name: form.name,
+        type: form.type,
         category: form.category,
         amount: parseInt(form.amount),
         billing_day: parseInt(form.billing_day),
@@ -168,6 +182,7 @@ export default function FixedExpenses() {
     mutationFn: ({ id, form }: { id: number; form: FormState }) =>
       updateFixedExpense(id, {
         name: form.name,
+        type: form.type,
         category: form.category,
         amount: parseInt(form.amount),
         billing_day: parseInt(form.billing_day),
@@ -186,28 +201,36 @@ export default function FixedExpenses() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fixed-expenses'] }),
   })
 
-  const activeExpenses = expenses.filter((e) => e.is_active === 1)
-  const monthlyTotal = activeExpenses.reduce((sum, e) => sum + e.amount, 0)
+  const activeItems = expenses.filter((e) => e.is_active === 1)
+  const monthlyExpense = activeItems.filter((e) => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)
+  const monthlyIncome = activeItems.filter((e) => e.type === 'income').reduce((sum, e) => sum + e.amount, 0)
 
   return (
     <div className="space-y-5">
       <FinanceSubNav />
 
       {/* Summary */}
-      <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
-        <div className="text-sm text-indigo-700">月間固定費合計（有効）</div>
-        <div className="text-2xl font-bold text-indigo-900 mt-1">{formatYen(monthlyTotal)}</div>
-        <div className="text-xs text-indigo-500 mt-1">{activeExpenses.length}件の有効な固定費</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="text-sm text-red-700">月間定期支出（有効）</div>
+          <div className="text-2xl font-bold text-red-900 mt-1">{formatYen(monthlyExpense)}</div>
+          <div className="text-xs text-red-500 mt-1">{activeItems.filter(e => e.type === 'expense').length}件</div>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="text-sm text-blue-700">月間定期収入（有効）</div>
+          <div className="text-2xl font-bold text-blue-900 mt-1">{formatYen(monthlyIncome)}</div>
+          <div className="text-xs text-blue-500 mt-1">{activeItems.filter(e => e.type === 'income').length}件</div>
+        </div>
       </div>
 
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium text-gray-700">固定費マスタ</h3>
+        <h3 className="text-sm font-medium text-gray-700">定期収支マスタ</h3>
         <button
           onClick={() => setShowAdd(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50"
         >
           <Plus size={14} />
-          固定費追加
+          追加
         </button>
       </div>
 
@@ -223,12 +246,13 @@ export default function FixedExpenses() {
         {isLoading ? (
           <div className="p-8 text-center text-gray-400">読み込み中...</div>
         ) : expenses.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">固定費が登録されていません</div>
+          <div className="p-8 text-center text-gray-400">定期収支が登録されていません</div>
         ) : (
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
                 <th className="px-4 py-2.5 text-xs font-medium text-gray-500">名称</th>
+                <th className="px-3 py-2.5 text-xs font-medium text-gray-500">種別</th>
                 <th className="px-3 py-2.5 text-xs font-medium text-gray-500 hidden sm:table-cell">カテゴリ</th>
                 <th className="px-3 py-2.5 text-xs font-medium text-gray-500 text-right">金額</th>
                 <th className="px-3 py-2.5 text-xs font-medium text-gray-500 hidden md:table-cell">開始月</th>
@@ -251,8 +275,20 @@ export default function FixedExpenses() {
                       <div className="text-sm font-medium text-gray-900">{exp.name}</div>
                       {exp.note && <div className="text-xs text-gray-400">{exp.note}</div>}
                     </td>
+                    <td className="px-3 py-2.5">
+                      <span className={clsx(
+                        'text-xs px-2 py-0.5 rounded-full font-medium',
+                        exp.type === 'income' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+                      )}>
+                        {exp.type === 'income' ? '収入' : '支出'}
+                      </span>
+                    </td>
                     <td className="px-3 py-2.5 text-sm text-gray-600 hidden sm:table-cell">{exp.category}</td>
-                    <td className="px-3 py-2.5 text-sm font-medium text-gray-900 text-right">{formatYen(exp.amount)}</td>
+                    <td className="px-3 py-2.5 text-sm font-medium text-right">
+                      <span className={exp.type === 'income' ? 'text-blue-600' : 'text-gray-900'}>
+                        {formatYen(exp.amount)}
+                      </span>
+                    </td>
                     <td className="px-3 py-2.5 text-sm text-gray-500 hidden md:table-cell">{exp.start_month}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-500 hidden md:table-cell">{exp.end_month ?? '無期限'}</td>
                     <td className="px-3 py-2.5">
@@ -288,10 +324,11 @@ export default function FixedExpenses() {
                   </tr>
                   {editingId === exp.id && (
                     <tr key={`edit-${exp.id}`}>
-                      <td colSpan={7} className="px-4 py-2">
+                      <td colSpan={8} className="px-4 py-2">
                         <FixedExpenseForm
                           initial={{
                             name: exp.name,
+                            type: exp.type ?? 'expense',
                             category: exp.category,
                             amount: String(exp.amount),
                             billing_day: String(exp.billing_day),

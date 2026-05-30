@@ -16,6 +16,7 @@ export async function runFixedExpensesCron(db: D1Database): Promise<void> {
     .all<{
       id: number
       name: string
+      type: 'income' | 'expense'
       category: string
       amount: number
     }>()
@@ -37,10 +38,11 @@ export async function runFixedExpensesCron(db: D1Database): Promise<void> {
       await db
         .prepare(
           `INSERT INTO transactions (date, type, category, amount, description, is_fixed, fixed_expense_id, created_by)
-           VALUES (?, 'expense', ?, ?, ?, 1, ?, 'system')`
+           VALUES (?, ?, ?, ?, ?, 1, ?, 'system')`
         )
         .bind(
           `${currentMonth}-01`,
+          expense.type,
           expense.category,
           expense.amount,
           expense.name,
@@ -51,5 +53,5 @@ export async function runFixedExpensesCron(db: D1Database): Promise<void> {
     }
   }
 
-  console.log(`[fixedExpenses cron] ${currentMonth}: ${insertedCount}件の固定費を展開しました`)
+  console.log(`[fixedExpenses cron] ${currentMonth}: ${insertedCount}件の定期取引を展開しました`)
 }
