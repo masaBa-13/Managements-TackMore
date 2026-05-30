@@ -18,18 +18,26 @@ const navItems = [
   { to: '/settings', label: '設定', icon: Settings },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ dark = false }: { dark?: boolean }) {
   return (
-    <aside className="w-56 min-h-screen bg-white border-r border-gray-200 flex flex-col">
+    <aside className={clsx(
+      'w-56 min-h-screen flex flex-col transition-colors',
+      dark
+        ? 'bg-[#0a0a18] border-r border-white/5'
+        : 'bg-white border-r border-gray-200'
+    )}>
       {/* Brand */}
-      <div className="px-5 py-5 border-b border-gray-200">
+      <div className={clsx('px-5 py-5 border-b', dark ? 'border-white/5' : 'border-gray-200')}>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <div className={clsx(
+            'w-8 h-8 rounded-lg flex items-center justify-center',
+            dark ? 'bg-fuchsia-500' : 'bg-indigo-600'
+          )}>
             <span className="text-white font-bold text-sm">T</span>
           </div>
           <div>
-            <div className="font-bold text-gray-900 text-sm leading-tight">TackMore</div>
-            <div className="text-xs text-gray-500 leading-tight">Ops Dashboard</div>
+            <div className={clsx('font-bold text-sm leading-tight', dark ? 'text-white' : 'text-gray-900')}>TackMore</div>
+            <div className={clsx('text-xs leading-tight', dark ? 'text-gray-600' : 'text-gray-500')}>Ops Dashboard</div>
           </div>
         </div>
       </div>
@@ -44,9 +52,13 @@ export default function Sidebar() {
             className={({ isActive }) =>
               clsx(
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                dark
+                  ? isActive
+                    ? 'bg-fuchsia-500/15 text-fuchsia-300'
+                    : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
+                  : isActive
+                    ? 'bg-indigo-50 text-indigo-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
               )
             }
           >
@@ -57,8 +69,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t border-gray-200">
-        <p className="text-xs text-gray-400">株式会社TackMore</p>
+      <div className={clsx('px-5 py-4 border-t', dark ? 'border-white/5' : 'border-gray-200')}>
+        <p className={clsx('text-xs', dark ? 'text-gray-700' : 'text-gray-400')}>株式会社TackMore</p>
       </div>
     </aside>
   )
