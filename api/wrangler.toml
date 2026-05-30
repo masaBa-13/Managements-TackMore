@@ -6,7 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "tackmore-dashboard"
-database_id = "REPLACE_WITH_ACTUAL_D1_ID"
+database_id = "d59a3b1d-f159-4e23-9136-304c09842745"
 
 [triggers]
 crons = [

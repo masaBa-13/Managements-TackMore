@@ -16,10 +16,13 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 app.use(
   '*',
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://tackmore-dashboard.pages.dev',
-    ],
+    origin: (origin) => {
+      const allowed = [
+        'http://localhost:5173',
+        'https://tackmore-dashboard.pages.dev',
+      ]
+      return allowed.includes(origin) || origin.endsWith('.pages.dev') ? origin : allowed[0]
+    },
     allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'X-Dev-Email', 'X-Dev-Name'],
     credentials: true,
