@@ -42,6 +42,9 @@ export interface FinanceSummary {
   income_total: number
   expense_total: number
   fixed_expense_total: number
+  fixed_expense_total_next: number
+  fixed_income_total_next: number
+  net_monthly_burn: number
   latest_balance: number | null
   latest_balance_month: string | null
   runway_months: number | null

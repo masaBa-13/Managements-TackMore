@@ -99,7 +99,7 @@ export default function CashBalance() {
 
       {/* Runway info */}
       {summary && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 grid grid-cols-2 gap-4">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <div className="text-xs text-amber-600">最新残高</div>
             <div className="text-xl font-bold text-amber-900">
@@ -114,8 +114,20 @@ export default function CashBalance() {
             <div className="text-xl font-bold text-amber-900">
               {summary.runway_months != null ? `${summary.runway_months}ヶ月` : '—'}
             </div>
+          </div>
+          <div>
+            <div className="text-xs text-amber-600">月間定期支出</div>
+            <div className="text-lg font-bold text-red-700">
+              {formatYen(summary.fixed_expense_total_next)}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-amber-600">月間定期収入</div>
+            <div className="text-lg font-bold text-blue-700">
+              {formatYen(summary.fixed_income_total_next)}
+            </div>
             <div className="text-xs text-amber-500">
-              月固定費: {formatYen(summary.fixed_expense_total)}
+              ネット支出: {formatYen(summary.net_monthly_burn)}/月
             </div>
           </div>
         </div>

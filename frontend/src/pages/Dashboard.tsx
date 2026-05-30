@@ -105,12 +105,18 @@ export default function Dashboard() {
                 <span className="text-red-500 font-medium">{formatYen(summary.expense_total)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">月間固定費</span>
-                <span className="text-gray-700 font-medium">{formatYen(summary.fixed_expense_total)}</span>
+                <span className="text-gray-500">定期支出</span>
+                <span className="text-gray-700 font-medium">{formatYen(summary.fixed_expense_total_next)}</span>
               </div>
+              {summary.fixed_income_total_next > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">定期収入</span>
+                  <span className="text-blue-600 font-medium">{formatYen(summary.fixed_income_total_next)}</span>
+                </div>
+              )}
               {summary.runway_months != null && (
                 <div className="bg-amber-50 rounded-lg p-3">
-                  <div className="text-xs text-amber-700">ランウェイ</div>
+                  <div className="text-xs text-amber-700">ランウェイ（ネット支出 {formatYen(summary.net_monthly_burn)}/月）</div>
                   <div className="text-xl font-bold text-amber-800">
                     {summary.runway_months}ヶ月
                   </div>

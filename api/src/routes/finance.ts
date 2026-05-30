@@ -280,13 +280,25 @@ finance.get('/summary', async (c) => {
     .bind(`${currentMonth}%`)
     .first<{ income_total: number | null; expense_total: number | null }>()
 
-  // active fixed expenses total
+  // active fixed expenses total (current month)
   const fixedTotal = await c.env.DB.prepare(
     `SELECT SUM(amount) as total FROM fixed_expenses
-     WHERE is_active = 1 AND start_month <= ? AND (end_month IS NULL OR end_month >= ?)`
+     WHERE is_active = 1 AND type = 'expense' AND start_month <= ? AND (end_month IS NULL OR end_month >= ?)`
   )
     .bind(currentMonth, currentMonth)
     .first<{ total: number | null }>()
+
+  // next month for runway calculation (include expenses starting next month)
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().slice(0, 7)
+  const fixedTotalForRunway = await c.env.DB.prepare(
+    `SELECT
+       SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense_total,
+       SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income_total
+     FROM fixed_expenses
+     WHERE is_active = 1 AND start_month <= ? AND (end_month IS NULL OR end_month >= ?)`
+  )
+    .bind(nextMonth, nextMonth)
+    .first<{ expense_total: number | null; income_total: number | null }>()
 
   // latest cash balance
   const latestBalance = await c.env.DB.prepare(
@@ -312,9 +324,14 @@ finance.get('/summary', async (c) => {
 
   const fixedExpTotal = fixedTotal?.total ?? 0
   const latestBal = latestBalance?.balance ?? null
+
+  // Runway: balance / net monthly burn (expenses - recurring income)
+  const runwayExpense = fixedTotalForRunway?.expense_total ?? 0
+  const runwayIncome = fixedTotalForRunway?.income_total ?? 0
+  const netMonthlyBurn = runwayExpense - runwayIncome
   const runwayMonths =
-    latestBal != null && fixedExpTotal > 0
-      ? Math.floor(latestBal / fixedExpTotal)
+    latestBal != null && netMonthlyBurn > 0
+      ? Math.floor(latestBal / netMonthlyBurn)
       : null
 
   return c.json({
@@ -322,6 +339,9 @@ finance.get('/summary', async (c) => {
     income_total: totals?.income_total ?? 0,
     expense_total: totals?.expense_total ?? 0,
     fixed_expense_total: fixedExpTotal,
+    fixed_expense_total_next: runwayExpense,
+    fixed_income_total_next: runwayIncome,
+    net_monthly_burn: netMonthlyBurn,
     latest_balance: latestBal,
     latest_balance_month: latestBalance?.recorded_month ?? null,
     runway_months: runwayMonths,
