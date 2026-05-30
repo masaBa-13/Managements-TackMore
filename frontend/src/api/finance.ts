@@ -1,3 +1,5 @@
+import { API_BASE } from './base'
+
 export interface Transaction {
   id: number
   date: string
@@ -53,7 +55,7 @@ export interface BalanceReminder {
 }
 
 export async function fetchTransactions(yearMonth?: string): Promise<Transaction[]> {
-  const url = yearMonth ? `/api/finance/transactions?year_month=${yearMonth}` : '/api/finance/transactions'
+  const url = yearMonth ? `${API_BASE}/api/finance/transactions?year_month=${yearMonth}` : `${API_BASE}/api/finance/transactions`
   const res = await fetch(url)
   if (!res.ok) throw new Error('取引の取得に失敗しました')
   return res.json()
@@ -66,7 +68,7 @@ export async function createTransaction(data: {
   amount: number
   description?: string
 }): Promise<Transaction> {
-  const res = await fetch('/api/finance/transactions', {
+  const res = await fetch(`${API_BASE}/api/finance/transactions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -85,7 +87,7 @@ export async function updateTransaction(id: number, data: Partial<{
   amount: number
   description: string
 }>): Promise<Transaction> {
-  const res = await fetch(`/api/finance/transactions/${id}`, {
+  const res = await fetch(`${API_BASE}/api/finance/transactions/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -98,7 +100,7 @@ export async function updateTransaction(id: number, data: Partial<{
 }
 
 export async function deleteTransaction(id: number): Promise<void> {
-  const res = await fetch(`/api/finance/transactions/${id}`, { method: 'DELETE' })
+  const res = await fetch(`${API_BASE}/api/finance/transactions/${id}`, { method: 'DELETE' })
   if (!res.ok) {
     const err = await res.json()
     throw new Error(err.error ?? '取引の削除に失敗しました')
@@ -106,7 +108,7 @@ export async function deleteTransaction(id: number): Promise<void> {
 }
 
 export async function fetchFixedExpenses(): Promise<FixedExpense[]> {
-  const res = await fetch('/api/finance/fixed-expenses')
+  const res = await fetch(`${API_BASE}/api/finance/fixed-expenses`)
   if (!res.ok) throw new Error('固定費の取得に失敗しました')
   return res.json()
 }
@@ -120,7 +122,7 @@ export async function createFixedExpense(data: {
   start_month: string
   end_month?: string
 }): Promise<FixedExpense> {
-  const res = await fetch('/api/finance/fixed-expenses', {
+  const res = await fetch(`${API_BASE}/api/finance/fixed-expenses`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -142,7 +144,7 @@ export async function updateFixedExpense(id: number, data: Partial<{
   end_month: string
   is_active: number
 }>): Promise<FixedExpense> {
-  const res = await fetch(`/api/finance/fixed-expenses/${id}`, {
+  const res = await fetch(`${API_BASE}/api/finance/fixed-expenses/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -155,7 +157,7 @@ export async function updateFixedExpense(id: number, data: Partial<{
 }
 
 export async function deleteFixedExpense(id: number): Promise<void> {
-  const res = await fetch(`/api/finance/fixed-expenses/${id}`, { method: 'DELETE' })
+  const res = await fetch(`${API_BASE}/api/finance/fixed-expenses/${id}`, { method: 'DELETE' })
   if (!res.ok) {
     const err = await res.json()
     throw new Error(err.error ?? '固定費の削除に失敗しました')
@@ -163,7 +165,7 @@ export async function deleteFixedExpense(id: number): Promise<void> {
 }
 
 export async function fetchCashBalances(): Promise<CashBalance[]> {
-  const res = await fetch('/api/finance/cash-balances')
+  const res = await fetch(`${API_BASE}/api/finance/cash-balances`)
   if (!res.ok) throw new Error('残高の取得に失敗しました')
   return res.json()
 }
@@ -173,7 +175,7 @@ export async function upsertCashBalance(data: {
   balance: number
   note?: string
 }): Promise<CashBalance> {
-  const res = await fetch('/api/finance/cash-balances', {
+  const res = await fetch(`${API_BASE}/api/finance/cash-balances`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -186,13 +188,13 @@ export async function upsertCashBalance(data: {
 }
 
 export async function fetchFinanceSummary(): Promise<FinanceSummary> {
-  const res = await fetch('/api/finance/summary')
+  const res = await fetch(`${API_BASE}/api/finance/summary`)
   if (!res.ok) throw new Error('サマリーの取得に失敗しました')
   return res.json()
 }
 
 export async function fetchReminderSetting(): Promise<BalanceReminder> {
-  const res = await fetch('/api/finance/reminder-setting')
+  const res = await fetch(`${API_BASE}/api/finance/reminder-setting`)
   if (!res.ok) throw new Error('リマインダー設定の取得に失敗しました')
   return res.json()
 }
@@ -202,7 +204,7 @@ export async function updateReminderSetting(data: {
   is_active?: boolean
   message?: string
 }): Promise<BalanceReminder> {
-  const res = await fetch('/api/finance/reminder-setting', {
+  const res = await fetch(`${API_BASE}/api/finance/reminder-setting`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),

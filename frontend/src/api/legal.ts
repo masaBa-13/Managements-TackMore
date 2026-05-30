@@ -1,3 +1,5 @@
+import { API_BASE } from './base'
+
 export interface LegalItem {
   id: number
   title: string
@@ -10,14 +12,14 @@ export interface LegalItem {
 }
 
 export async function fetchLegalItems(status?: string): Promise<LegalItem[]> {
-  const url = status ? `/api/legal?status=${status}` : '/api/legal'
+  const url = status ? `${API_BASE}/api/legal?status=${status}` : `${API_BASE}/api/legal`
   const res = await fetch(url)
   if (!res.ok) throw new Error('法務項目の取得に失敗しました')
   return res.json()
 }
 
 export async function fetchLegalAlerts(): Promise<LegalItem[]> {
-  const res = await fetch('/api/legal/alerts')
+  const res = await fetch(`${API_BASE}/api/legal/alerts`)
   if (!res.ok) throw new Error('法務アラートの取得に失敗しました')
   return res.json()
 }
@@ -28,7 +30,7 @@ export async function createLegalItem(data: {
   due_date: string
   notes?: string
 }): Promise<LegalItem> {
-  const res = await fetch('/api/legal', {
+  const res = await fetch(`${API_BASE}/api/legal`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -50,7 +52,7 @@ export async function updateLegalItem(
     notes: string
   }>
 ): Promise<LegalItem> {
-  const res = await fetch(`/api/legal/${id}`, {
+  const res = await fetch(`${API_BASE}/api/legal/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -63,7 +65,7 @@ export async function updateLegalItem(
 }
 
 export async function deleteLegalItem(id: number): Promise<void> {
-  const res = await fetch(`/api/legal/${id}`, { method: 'DELETE' })
+  const res = await fetch(`${API_BASE}/api/legal/${id}`, { method: 'DELETE' })
   if (!res.ok) {
     const err = await res.json()
     throw new Error(err.error ?? '法務項目の削除に失敗しました')

@@ -1,3 +1,5 @@
+import { API_BASE } from './base'
+
 export interface Task {
   id: number
   parent_id: number | null
@@ -45,20 +47,20 @@ export async function fetchTasks(params?: { project?: string; status?: string })
   const query = new URLSearchParams()
   if (params?.project) query.set('project', params.project)
   if (params?.status) query.set('status', params.status)
-  const url = `/api/tasks${query.toString() ? `?${query}` : ''}`
+  const url = `${API_BASE}/api/tasks${query.toString() ? `?${query}` : ''}`
   const res = await fetch(url)
   if (!res.ok) throw new Error('タスクの取得に失敗しました')
   return res.json()
 }
 
 export async function fetchTask(id: number): Promise<Task> {
-  const res = await fetch(`/api/tasks/${id}`)
+  const res = await fetch(`${API_BASE}/api/tasks/${id}`)
   if (!res.ok) throw new Error('タスクの取得に失敗しました')
   return res.json()
 }
 
 export async function createTask(data: TaskCreateInput): Promise<Task> {
-  const res = await fetch('/api/tasks', {
+  const res = await fetch(`${API_BASE}/api/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -71,7 +73,7 @@ export async function createTask(data: TaskCreateInput): Promise<Task> {
 }
 
 export async function updateTask(id: number, data: TaskUpdateInput): Promise<Task> {
-  const res = await fetch(`/api/tasks/${id}`, {
+  const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -84,7 +86,7 @@ export async function updateTask(id: number, data: TaskUpdateInput): Promise<Tas
 }
 
 export async function deleteTask(id: number): Promise<void> {
-  const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' })
+  const res = await fetch(`${API_BASE}/api/tasks/${id}`, { method: 'DELETE' })
   if (!res.ok) {
     const err = await res.json()
     throw new Error(err.error ?? 'タスクの削除に失敗しました')
@@ -92,7 +94,7 @@ export async function deleteTask(id: number): Promise<void> {
 }
 
 export async function reorderTask(id: number, order_index: number): Promise<Task[]> {
-  const res = await fetch(`/api/tasks/${id}/reorder`, {
+  const res = await fetch(`${API_BASE}/api/tasks/${id}/reorder`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ order_index }),
