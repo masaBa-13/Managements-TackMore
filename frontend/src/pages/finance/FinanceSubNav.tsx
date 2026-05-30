@@ -6,6 +6,7 @@ const tabs = [
   { to: '/finance/fixed', label: '定期収支' },
   { to: '/finance/balance', label: '口座残高' },
   { to: '/finance/invoices', label: '請求書' },
+  { to: '/finance/forecast', label: '入金見込み' },
   { to: '/finance/budget', label: '予算管理' },
 ]
 

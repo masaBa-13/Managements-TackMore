@@ -7,6 +7,8 @@ import financeRouter from './routes/finance'
 import legalRouter from './routes/legal'
 import marketRouter from './routes/market'
 import membersRouter from './routes/members'
+import categoriesRouter from './routes/categories'
+import projectsRouter from './routes/projects'
 import { runFixedExpensesCron } from './cron/fixedExpenses'
 import { runBalanceReminderCron } from './cron/balanceReminder'
 
@@ -38,6 +40,8 @@ app.route('/api/finance', financeRouter)
 app.route('/api/legal', legalRouter)
 app.route('/api/market', marketRouter)
 app.route('/api/members', membersRouter)
+app.route('/api/categories', categoriesRouter)
+app.route('/api/projects', projectsRouter)
 
 // Health check
 app.get('/', (c) => c.json({ status: 'ok', name: 'TackMore Dashboard API' }))

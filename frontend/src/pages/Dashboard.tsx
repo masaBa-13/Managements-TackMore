@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { AlertCircle, DollarSign, CheckSquare, TrendingUp, FileText } from 'lucide-react'
-import { fetchFinanceSummary, fetchInvoiceAlerts } from '../api/finance'
+import { clsx } from 'clsx'
+import {
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+} from 'recharts'
+import { fetchFinanceSummary, fetchInvoiceAlerts, fetchMonthlyTrend } from '../api/finance'
 import { fetchLegalAlerts } from '../api/legal'
 import { fetchTasks } from '../api/tasks'
 import { fetchMarketNotes } from '../api/market'
@@ -19,6 +24,7 @@ function formatDate(dateStr: string): string {
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const [includeForecast, setIncludeForecast] = useState(false)
 
   const { data: summary } = useQuery({
     queryKey: ['finance-summary'],
@@ -45,6 +51,11 @@ export default function Dashboard() {
     queryFn: fetchInvoiceAlerts,
   })
 
+  const { data: trend = [] } = useQuery({
+    queryKey: ['monthly-trend-dash', includeForecast],
+    queryFn: () => fetchMonthlyTrend(6, includeForecast),
+  })
+
   const today = new Date().toISOString().slice(0, 10)
   const overdueTasks = tasks?.filter((t) => t.due_date && t.due_date < today && t.status !== 'done').length ?? 0
   const doneTasks = tasks?.filter((t) => t.status === 'done').length ?? 0
@@ -66,6 +77,43 @@ export default function Dashboard() {
           >
             入力する →
           </button>
+        </div>
+      )}
+
+      {/* Monthly Trend Chart */}
+      {trend.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-gray-900">収支・残高推移</h2>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <span className="text-xs text-gray-500">見込み含む</span>
+              <button
+                onClick={() => setIncludeForecast(!includeForecast)}
+                className={clsx(
+                  'relative w-10 h-5 rounded-full transition-colors',
+                  includeForecast ? 'bg-indigo-600' : 'bg-gray-300'
+                )}
+              >
+                <span className={clsx(
+                  'absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform shadow',
+                  includeForecast ? 'left-5.5 translate-x-0.5' : 'left-0.5'
+                )} />
+              </button>
+            </label>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart data={trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${(v / 10000).toFixed(0)}万`} />
+              <Tooltip formatter={(v: number) => formatYen(v)} />
+              <Legend />
+              <Bar dataKey="income" fill="#3b82f6" name="収入（実績）" />
+              {includeForecast && <Bar dataKey="forecast_income" fill="#93c5fd" name="入金見込み" />}
+              <Bar dataKey="expense" fill="#ef4444" name="支出" />
+              <Line type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2.5} dot={{ r: 4 }} name="残高" connectNulls />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       )}
 

@@ -572,4 +572,116 @@ finance.get('/budget-vs-actual', async (c) => {
   return c.json(result)
 })
 
+// ===== 入金見込み =====
+
+finance.get('/income-forecasts', async (c) => {
+  const status = c.req.query('status')
+  let sql = 'SELECT * FROM income_forecasts'
+  const params: string[] = []
+  if (status) { sql += ' WHERE status = ?'; params.push(status) }
+  sql += ' ORDER BY expected_date ASC'
+  const result = await c.env.DB.prepare(sql).bind(...params).all()
+  return c.json(result.results ?? [])
+})
+
+finance.post('/income-forecasts', async (c) => {
+  const body = await c.req.json<{
+    client_name: string; title: string; amount: number
+    expected_date: string; category?: string
+    probability?: number; notes?: string
+  }>()
+  if (!body.client_name || !body.title || body.amount == null || !body.expected_date) {
+    return c.json({ error: '必須項目が不足しています' }, 400)
+  }
+  const result = await c.env.DB.prepare(
+    `INSERT INTO income_forecasts (client_name, title, amount, expected_date, category, probability, notes, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(body.client_name, body.title, body.amount, body.expected_date,
+    body.category ?? null, body.probability ?? 100, body.notes ?? null, c.get('userName')).run()
+  const row = await c.env.DB.prepare('SELECT * FROM income_forecasts WHERE id = ?').bind(result.meta.last_row_id).first()
+  return c.json(row, 201)
+})
+
+finance.patch('/income-forecasts/:id', async (c) => {
+  const id = parseInt(c.req.param('id'))
+  const body = await c.req.json<{
+    client_name?: string; title?: string; amount?: number
+    expected_date?: string; category?: string
+    probability?: number; status?: string; notes?: string
+  }>()
+  const existing = await c.env.DB.prepare('SELECT id FROM income_forecasts WHERE id = ?').bind(id).first()
+  if (!existing) return c.json({ error: '入金見込みが見つかりません' }, 404)
+
+  const updates: string[] = []
+  const params: unknown[] = []
+  if (body.client_name !== undefined) { updates.push('client_name = ?'); params.push(body.client_name) }
+  if (body.title !== undefined) { updates.push('title = ?'); params.push(body.title) }
+  if (body.amount !== undefined) { updates.push('amount = ?'); params.push(body.amount) }
+  if (body.expected_date !== undefined) { updates.push('expected_date = ?'); params.push(body.expected_date) }
+  if (body.category !== undefined) { updates.push('category = ?'); params.push(body.category) }
+  if (body.probability !== undefined) { updates.push('probability = ?'); params.push(body.probability) }
+  if (body.status !== undefined) { updates.push('status = ?'); params.push(body.status) }
+  if (body.notes !== undefined) { updates.push('notes = ?'); params.push(body.notes) }
+  if (updates.length === 0) return c.json(existing)
+
+  params.push(id)
+  await c.env.DB.prepare(`UPDATE income_forecasts SET ${updates.join(', ')} WHERE id = ?`).bind(...params).run()
+  const row = await c.env.DB.prepare('SELECT * FROM income_forecasts WHERE id = ?').bind(id).first()
+  return c.json(row)
+})
+
+finance.delete('/income-forecasts/:id', async (c) => {
+  const id = parseInt(c.req.param('id'))
+  await c.env.DB.prepare('DELETE FROM income_forecasts WHERE id = ?').bind(id).run()
+  return c.json({ success: true })
+})
+
+// ===== 月次推移（ダッシュボード用） =====
+
+finance.get('/monthly-trend', async (c) => {
+  const months = parseInt(c.req.query('months') ?? '6')
+  const includeForecast = c.req.query('include_forecast') === 'true'
+
+  // Build list of last N months
+  const monthList: string[] = []
+  const now = new Date()
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    monthList.push(d.toISOString().slice(0, 7))
+  }
+
+  const result = []
+  for (const ym of monthList) {
+    const txTotals = await c.env.DB.prepare(
+      `SELECT
+         SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
+         SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+       FROM transactions WHERE date LIKE ?`
+    ).bind(`${ym}%`).first<{ income: number | null; expense: number | null }>()
+
+    const bal = await c.env.DB.prepare(
+      'SELECT balance FROM cash_balances WHERE recorded_month = ?'
+    ).bind(ym).first<{ balance: number } | null>()
+
+    let forecastIncome = 0
+    if (includeForecast) {
+      const fc = await c.env.DB.prepare(
+        `SELECT SUM(amount) as total FROM income_forecasts
+         WHERE expected_date LIKE ? AND status IN ('forecast', 'confirmed')`
+      ).bind(`${ym}%`).first<{ total: number | null }>()
+      forecastIncome = fc?.total ?? 0
+    }
+
+    result.push({
+      month: ym,
+      income: txTotals?.income ?? 0,
+      expense: txTotals?.expense ?? 0,
+      balance: bal?.balance ?? null,
+      forecast_income: forecastIncome,
+    })
+  }
+
+  return c.json(result)
+})
+
 export default finance

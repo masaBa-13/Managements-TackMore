@@ -141,6 +141,45 @@ CREATE TABLE IF NOT EXISTS budgets (
   UNIQUE(year_month, category)
 );
 
+-- ===== カテゴリ =====
+
+CREATE TABLE IF NOT EXISTS categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  type TEXT NOT NULL DEFAULT 'expense'
+    CHECK(type IN ('income', 'expense', 'both')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ===== プロジェクト =====
+
+CREATE TABLE IF NOT EXISTS projects (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ===== 入金見込み =====
+
+CREATE TABLE IF NOT EXISTS income_forecasts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_name TEXT NOT NULL,
+  title TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  expected_date TEXT NOT NULL,             -- YYYY-MM-DD
+  category TEXT,
+  probability INTEGER NOT NULL DEFAULT 100, -- 確度 (%)
+  status TEXT NOT NULL DEFAULT 'forecast'
+    CHECK(status IN ('forecast', 'confirmed', 'received', 'cancelled')),
+  notes TEXT,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_income_forecasts_date ON income_forecasts(expected_date);
+CREATE INDEX IF NOT EXISTS idx_income_forecasts_status ON income_forecasts(status);
+
 -- ===== メンバー =====
 
 CREATE TABLE IF NOT EXISTS members (

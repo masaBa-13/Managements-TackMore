@@ -356,3 +356,78 @@ export async function fetchBudgetVsActual(yearMonth?: string): Promise<BudgetVsA
   if (!res.ok) throw new Error('予算実績の取得に失敗しました')
   return res.json()
 }
+
+// ===== 入金見込み =====
+
+export interface IncomeForecast {
+  id: number
+  client_name: string
+  title: string
+  amount: number
+  expected_date: string
+  category: string | null
+  probability: number
+  status: 'forecast' | 'confirmed' | 'received' | 'cancelled'
+  notes: string | null
+  created_by: string
+  created_at: string
+}
+
+export async function fetchIncomeForecasts(status?: string): Promise<IncomeForecast[]> {
+  const url = status ? `${API_BASE}/api/finance/income-forecasts?status=${status}` : `${API_BASE}/api/finance/income-forecasts`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('入金見込みの取得に失敗しました')
+  return res.json()
+}
+
+export async function createIncomeForecast(data: {
+  client_name: string; title: string; amount: number
+  expected_date: string; category?: string
+  probability?: number; notes?: string
+}): Promise<IncomeForecast> {
+  const res = await fetch(`${API_BASE}/api/finance/income-forecasts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) { const err = await res.json(); throw new Error(err.error ?? '入金見込みの作成に失敗しました') }
+  return res.json()
+}
+
+export async function updateIncomeForecast(id: number, data: Partial<{
+  client_name: string; title: string; amount: number
+  expected_date: string; category: string
+  probability: number; status: string; notes: string
+}>): Promise<IncomeForecast> {
+  const res = await fetch(`${API_BASE}/api/finance/income-forecasts/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) { const err = await res.json(); throw new Error(err.error ?? '入金見込みの更新に失敗しました') }
+  return res.json()
+}
+
+export async function deleteIncomeForecast(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/finance/income-forecasts/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('入金見込みの削除に失敗しました')
+}
+
+// ===== 月次推移 =====
+
+export interface MonthlyTrend {
+  month: string
+  income: number
+  expense: number
+  balance: number | null
+  forecast_income: number
+}
+
+export async function fetchMonthlyTrend(months?: number, includeForecast?: boolean): Promise<MonthlyTrend[]> {
+  const params = new URLSearchParams()
+  if (months) params.set('months', String(months))
+  if (includeForecast) params.set('include_forecast', 'true')
+  const res = await fetch(`${API_BASE}/api/finance/monthly-trend?${params}`)
+  if (!res.ok) throw new Error('月次推移の取得に失敗しました')
+  return res.json()
+}

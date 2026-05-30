@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Trash2, Wallet } from 'lucide-react'
 import FinanceSubNav from './FinanceSubNav'
+import CategorySelect from '../../components/CategorySelect'
 import {
   BarChart,
   Bar,
@@ -15,12 +16,15 @@ import {
   Pie,
   Cell,
   Legend,
+  ComposedChart,
+  Line,
 } from 'recharts'
 import { clsx } from 'clsx'
 import {
   fetchTransactions,
   createTransaction,
   deleteTransaction,
+  fetchMonthlyTrend,
   type Transaction,
 } from '../../api/finance'
 
@@ -81,13 +85,7 @@ function AddTransactionForm({ onClose }: AddTransactionFormProps) {
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">カテゴリ</label>
-          <input
-            type="text"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="例: 売上, 広告費"
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
-          />
+          <CategorySelect value={category} onChange={setCategory} filterType={type} className="w-full" />
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">金額（円）</label>
@@ -210,6 +208,7 @@ export default function FinancePage() {
   const navigate = useNavigate()
   const [yearMonth, setYearMonth] = useState(getCurrentYearMonth())
   const [showAddForm, setShowAddForm] = useState(false)
+  const [includeForecast, setIncludeForecast] = useState(false)
 
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['transactions', yearMonth],
@@ -233,6 +232,12 @@ export default function FinancePage() {
     { name: '収入', amount: incomeTotal },
     { name: '支出', amount: expenseTotal },
   ]
+
+  // Monthly trend
+  const { data: trend = [] } = useQuery({
+    queryKey: ['monthly-trend', includeForecast],
+    queryFn: () => fetchMonthlyTrend(6, includeForecast),
+  })
 
   return (
     <div className="space-y-5">
@@ -263,10 +268,47 @@ export default function FinancePage() {
         </div>
       </div>
 
-      {/* Charts */}
+      {/* Monthly Trend Chart */}
+      {trend.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-gray-700">月次推移（6ヶ月）</h3>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <span className="text-xs text-gray-500">入金見込みを含む</span>
+              <button
+                onClick={() => setIncludeForecast(!includeForecast)}
+                className={clsx(
+                  'relative w-10 h-5 rounded-full transition-colors',
+                  includeForecast ? 'bg-indigo-600' : 'bg-gray-300'
+                )}
+              >
+                <span className={clsx(
+                  'absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform shadow',
+                  includeForecast ? 'left-5.5 translate-x-0.5' : 'left-0.5'
+                )} />
+              </button>
+            </label>
+          </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <ComposedChart data={trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 10000).toFixed(0)}万`} />
+              <Tooltip formatter={(v: number) => formatYen(v)} />
+              <Legend />
+              <Bar dataKey="income" fill="#3b82f6" name="収入（実績）" />
+              {includeForecast && <Bar dataKey="forecast_income" fill="#93c5fd" name="入金見込み" />}
+              <Bar dataKey="expense" fill="#ef4444" name="支出" />
+              <Line type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} name="残高" connectNulls />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Current Month Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">月次収支</h3>
+          <h3 className="text-sm font-medium text-gray-700 mb-3">当月収支</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={barData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
