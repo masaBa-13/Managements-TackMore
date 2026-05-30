@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { AlertCircle, DollarSign, CheckSquare, TrendingUp, FileText } from 'lucide-react'
+import { AlertCircle, DollarSign, CheckSquare, TrendingUp, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
 import { clsx } from 'clsx'
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -53,8 +53,34 @@ export default function Dashboard() {
 
   const { data: trend = [] } = useQuery({
     queryKey: ['monthly-trend-dash', includeForecast],
-    queryFn: () => fetchMonthlyTrend(6, includeForecast),
+    queryFn: () => fetchMonthlyTrend(24, includeForecast),
   })
+
+  const chartScrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateScrollState = () => {
+    const el = chartScrollRef.current
+    if (!el) return
+    setCanScrollLeft(el.scrollLeft > 0)
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1)
+  }
+
+  useEffect(() => {
+    const el = chartScrollRef.current
+    if (!el || trend.length === 0) return
+    // Scroll to right end (current month)
+    el.scrollLeft = el.scrollWidth
+    updateScrollState()
+  }, [trend])
+
+  const scrollChart = (direction: 'left' | 'right') => {
+    const el = chartScrollRef.current
+    if (!el) return
+    const step = 300
+    el.scrollBy({ left: direction === 'left' ? -step : step, behavior: 'smooth' })
+  }
 
   const today = new Date().toISOString().slice(0, 10)
   const overdueTasks = tasks?.filter((t) => t.due_date && t.due_date < today && t.status !== 'done').length ?? 0
@@ -101,19 +127,45 @@ export default function Dashboard() {
               </button>
             </label>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <ComposedChart data={trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${(v / 10000).toFixed(0)}万`} />
-              <Tooltip formatter={(v: number) => formatYen(v)} />
-              <Legend />
-              <Bar dataKey="income" fill="#3b82f6" name="収入（実績）" />
-              {includeForecast && <Bar dataKey="forecast_income" fill="#93c5fd" name="入金見込み" />}
-              <Bar dataKey="expense" fill="#ef4444" name="支出" />
-              <Line type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2.5} dot={{ r: 4 }} name="残高" connectNulls />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <div className="relative">
+            {canScrollLeft && (
+              <button
+                onClick={() => scrollChart('left')}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 border border-gray-200 rounded-full flex items-center justify-center shadow hover:bg-gray-50"
+              >
+                <ChevronLeft size={16} className="text-gray-600" />
+              </button>
+            )}
+            {canScrollRight && (
+              <button
+                onClick={() => scrollChart('right')}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 border border-gray-200 rounded-full flex items-center justify-center shadow hover:bg-gray-50"
+              >
+                <ChevronRight size={16} className="text-gray-600" />
+              </button>
+            )}
+            <div
+              ref={chartScrollRef}
+              onScroll={updateScrollState}
+              className="overflow-x-auto scrollbar-thin"
+            >
+              <div style={{ width: `${Math.max(trend.length * 80, 100)}px`, minWidth: '100%' }}>
+                <ResponsiveContainer width="100%" height={280}>
+                  <ComposedChart data={trend}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${(v / 10000).toFixed(0)}万`} />
+                    <Tooltip formatter={(v: number) => formatYen(v)} />
+                    <Legend />
+                    <Bar dataKey="income" fill="#3b82f6" name="収入（実績）" />
+                    {includeForecast && <Bar dataKey="forecast_income" fill="#93c5fd" name="入金見込み" />}
+                    <Bar dataKey="expense" fill="#ef4444" name="支出" />
+                    <Line type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2.5} dot={{ r: 4 }} name="残高" connectNulls />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
