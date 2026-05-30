@@ -61,7 +61,7 @@ export default function Dashboard() {
             <span className="text-sm font-medium">今月の残高がまだ入力されていません</span>
           </div>
           <button
-            onClick={() => navigate('/finance')}
+            onClick={() => navigate('/finance/balance')}
             className="text-sm text-red-700 font-medium underline hover:no-underline"
           >
             入力する →

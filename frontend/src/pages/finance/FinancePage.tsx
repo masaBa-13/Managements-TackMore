@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Plus, Trash2, Wallet } from 'lucide-react'
 import FinanceSubNav from './FinanceSubNav'
 import {
   BarChart,
@@ -206,6 +207,7 @@ function TransactionTable({ transactions }: { transactions: Transaction[] }) {
 }
 
 export default function FinancePage() {
+  const navigate = useNavigate()
   const [yearMonth, setYearMonth] = useState(getCurrentYearMonth())
   const [showAddForm, setShowAddForm] = useState(false)
 
@@ -236,8 +238,8 @@ export default function FinancePage() {
     <div className="space-y-5">
       <FinanceSubNav />
 
-      {/* Month selector */}
-      <div className="flex items-center gap-3">
+      {/* Month selector + balance button */}
+      <div className="flex items-center gap-3 flex-wrap">
         <label className="text-sm text-gray-600">対象月:</label>
         <input
           type="month"
@@ -245,6 +247,13 @@ export default function FinancePage() {
           onChange={(e) => setYearMonth(e.target.value)}
           className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
         />
+        <button
+          onClick={() => navigate('/finance/balance')}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-amber-50 border border-amber-200 text-amber-700 rounded-md hover:bg-amber-100 font-medium"
+        >
+          <Wallet size={14} />
+          残高を入力
+        </button>
         <div className="ml-auto flex gap-4 text-sm">
           <span className="text-blue-600 font-medium">収入: {formatYen(incomeTotal)}</span>
           <span className="text-red-500 font-medium">支出: {formatYen(expenseTotal)}</span>
