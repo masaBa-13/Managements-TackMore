@@ -215,3 +215,138 @@ export async function updateReminderSetting(data: {
   }
   return res.json()
 }
+
+// ===== 請求書 =====
+
+export interface Invoice {
+  id: number
+  client_name: string
+  title: string
+  amount: number
+  issue_date: string
+  due_date: string
+  status: 'draft' | 'sent' | 'paid' | 'overdue'
+  sent_at: string | null
+  paid_at: string | null
+  notes: string | null
+  created_by: string
+  created_at: string
+}
+
+export async function fetchInvoices(status?: string): Promise<Invoice[]> {
+  const url = status ? `${API_BASE}/api/finance/invoices?status=${status}` : `${API_BASE}/api/finance/invoices`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('請求書の取得に失敗しました')
+  return res.json()
+}
+
+export async function fetchInvoiceAlerts(): Promise<Invoice[]> {
+  const res = await fetch(`${API_BASE}/api/finance/invoices/alerts`)
+  if (!res.ok) throw new Error('請求書アラートの取得に失敗しました')
+  return res.json()
+}
+
+export async function createInvoice(data: {
+  client_name: string
+  title: string
+  amount: number
+  issue_date: string
+  due_date: string
+  notes?: string
+}): Promise<Invoice> {
+  const res = await fetch(`${API_BASE}/api/finance/invoices`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error ?? '請求書の作成に失敗しました')
+  }
+  return res.json()
+}
+
+export async function updateInvoice(
+  id: number,
+  data: Partial<{
+    client_name: string
+    title: string
+    amount: number
+    issue_date: string
+    due_date: string
+    status: 'draft' | 'sent' | 'paid' | 'overdue'
+    notes: string
+  }>
+): Promise<Invoice> {
+  const res = await fetch(`${API_BASE}/api/finance/invoices/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error ?? '請求書の更新に失敗しました')
+  }
+  return res.json()
+}
+
+export async function deleteInvoice(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/finance/invoices/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error ?? '請求書の削除に失敗しました')
+  }
+}
+
+// ===== 月次予算 =====
+
+export interface Budget {
+  id: number
+  year_month: string
+  category: string
+  amount: number
+  created_by: string
+  created_at: string
+}
+
+export interface BudgetVsActual {
+  category: string
+  budget: number
+  actual: number
+}
+
+export async function fetchBudgets(yearMonth?: string): Promise<Budget[]> {
+  const url = yearMonth ? `${API_BASE}/api/finance/budgets?year_month=${yearMonth}` : `${API_BASE}/api/finance/budgets`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('予算の取得に失敗しました')
+  return res.json()
+}
+
+export async function upsertBudget(data: {
+  year_month: string
+  category: string
+  amount: number
+}): Promise<Budget> {
+  const res = await fetch(`${API_BASE}/api/finance/budgets`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error ?? '予算の保存に失敗しました')
+  }
+  return res.json()
+}
+
+export async function deleteBudget(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/finance/budgets/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('予算の削除に失敗しました')
+}
+
+export async function fetchBudgetVsActual(yearMonth?: string): Promise<BudgetVsActual[]> {
+  const ym = yearMonth ?? new Date().toISOString().slice(0, 7)
+  const res = await fetch(`${API_BASE}/api/finance/budget-vs-actual?year_month=${ym}`)
+  if (!res.ok) throw new Error('予算実績の取得に失敗しました')
+  return res.json()
+}

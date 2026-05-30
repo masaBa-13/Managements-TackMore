@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { fetchCashBalances, upsertCashBalance, fetchFinanceSummary } from '../../api/finance'
+import FinanceSubNav from './FinanceSubNav'
 
 function formatYen(amount: number): string {
   return new Intl.NumberFormat('ja-JP').format(amount) + '円'
@@ -47,6 +48,8 @@ export default function CashBalance() {
 
   return (
     <div className="space-y-5">
+      <FinanceSubNav />
+
       {/* Input form */}
       <div className="bg-white border border-gray-200 rounded-xl p-4">
         <h3 className="text-sm font-medium text-gray-700 mb-3">残高を入力</h3>

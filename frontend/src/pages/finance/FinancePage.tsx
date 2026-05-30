@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
 import { Plus, Trash2 } from 'lucide-react'
+import FinanceSubNav from './FinanceSubNav'
 import {
   BarChart,
   Bar,
@@ -234,15 +234,7 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-5">
-      {/* Sub-navigation */}
-      <div className="flex gap-2">
-        <Link to="/finance" className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md font-medium">
-          収支
-        </Link>
-        <Link to="/finance/fixed" className="px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-600 rounded-md hover:bg-gray-50">
-          固定費
-        </Link>
-      </div>
+      <FinanceSubNav />
 
       {/* Month selector */}
       <div className="flex items-center gap-3">

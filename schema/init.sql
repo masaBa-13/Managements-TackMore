@@ -106,6 +106,39 @@ CREATE TABLE IF NOT EXISTS market_notes (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ===== 請求書 =====
+
+CREATE TABLE IF NOT EXISTS invoices (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_name TEXT NOT NULL,                   -- 請求先名
+  title TEXT NOT NULL,                         -- 件名
+  amount INTEGER NOT NULL,                     -- 請求金額（円）
+  issue_date TEXT NOT NULL,                    -- 発行日 YYYY-MM-DD
+  due_date TEXT NOT NULL,                      -- 支払期日 YYYY-MM-DD
+  status TEXT NOT NULL DEFAULT 'draft'
+    CHECK(status IN ('draft', 'sent', 'paid', 'overdue')),
+  sent_at TEXT,                                -- 送付日時
+  paid_at TEXT,                                -- 入金確認日時
+  notes TEXT,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status);
+CREATE INDEX IF NOT EXISTS idx_invoices_due_date ON invoices(due_date);
+
+-- ===== 月次予算 =====
+
+CREATE TABLE IF NOT EXISTS budgets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  year_month TEXT NOT NULL,                    -- YYYY-MM
+  category TEXT NOT NULL,
+  amount INTEGER NOT NULL,                     -- 予算金額（円）
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(year_month, category)
+);
+
 -- ===== メンバー =====
 
 CREATE TABLE IF NOT EXISTS members (

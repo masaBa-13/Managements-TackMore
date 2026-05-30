@@ -360,4 +360,192 @@ finance.patch('/reminder-setting', async (c) => {
   return c.json(row)
 })
 
+// ===== 請求書 =====
+
+// GET /api/finance/invoices
+finance.get('/invoices', async (c) => {
+  const status = c.req.query('status')
+  let sql = 'SELECT * FROM invoices'
+  const params: string[] = []
+
+  if (status) {
+    sql += ' WHERE status = ?'
+    params.push(status)
+  }
+  sql += ' ORDER BY due_date ASC'
+
+  const result = await c.env.DB.prepare(sql).bind(...params).all()
+  return c.json(result.results ?? [])
+})
+
+// GET /api/finance/invoices/alerts — 未送付 or 期日7日以内で未入金
+finance.get('/invoices/alerts', async (c) => {
+  const result = await c.env.DB.prepare(
+    `SELECT * FROM invoices
+     WHERE (status = 'draft')
+        OR (status = 'sent' AND due_date <= date('now', '+7 days'))
+        OR (status = 'overdue')
+     ORDER BY due_date ASC`
+  ).all()
+  return c.json(result.results ?? [])
+})
+
+// POST /api/finance/invoices
+finance.post('/invoices', async (c) => {
+  const body = await c.req.json<{
+    client_name: string
+    title: string
+    amount: number
+    issue_date: string
+    due_date: string
+    notes?: string
+  }>()
+
+  if (!body.client_name || !body.title || body.amount == null || !body.issue_date || !body.due_date) {
+    return c.json({ error: '必須項目が不足しています' }, 400)
+  }
+
+  const result = await c.env.DB.prepare(
+    `INSERT INTO invoices (client_name, title, amount, issue_date, due_date, notes, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(body.client_name, body.title, body.amount, body.issue_date, body.due_date, body.notes ?? null, c.get('userName'))
+    .run()
+
+  const row = await c.env.DB.prepare('SELECT * FROM invoices WHERE id = ?')
+    .bind(result.meta.last_row_id)
+    .first()
+
+  return c.json(row, 201)
+})
+
+// PATCH /api/finance/invoices/:id
+finance.patch('/invoices/:id', async (c) => {
+  const id = parseInt(c.req.param('id'))
+  const body = await c.req.json<{
+    client_name?: string
+    title?: string
+    amount?: number
+    issue_date?: string
+    due_date?: string
+    status?: 'draft' | 'sent' | 'paid' | 'overdue'
+    notes?: string
+  }>()
+
+  const existing = await c.env.DB.prepare('SELECT id FROM invoices WHERE id = ?').bind(id).first()
+  if (!existing) return c.json({ error: '請求書が見つかりません' }, 404)
+
+  const updates: string[] = []
+  const params: unknown[] = []
+
+  if (body.client_name !== undefined) { updates.push('client_name = ?'); params.push(body.client_name) }
+  if (body.title !== undefined) { updates.push('title = ?'); params.push(body.title) }
+  if (body.amount !== undefined) { updates.push('amount = ?'); params.push(body.amount) }
+  if (body.issue_date !== undefined) { updates.push('issue_date = ?'); params.push(body.issue_date) }
+  if (body.due_date !== undefined) { updates.push('due_date = ?'); params.push(body.due_date) }
+  if (body.notes !== undefined) { updates.push('notes = ?'); params.push(body.notes) }
+  if (body.status !== undefined) {
+    updates.push('status = ?'); params.push(body.status)
+    if (body.status === 'sent') { updates.push("sent_at = datetime('now')") }
+    if (body.status === 'paid') { updates.push("paid_at = datetime('now')") }
+  }
+
+  if (updates.length === 0) return c.json(existing)
+
+  params.push(id)
+  await c.env.DB.prepare(`UPDATE invoices SET ${updates.join(', ')} WHERE id = ?`)
+    .bind(...params)
+    .run()
+
+  const row = await c.env.DB.prepare('SELECT * FROM invoices WHERE id = ?').bind(id).first()
+  return c.json(row)
+})
+
+// DELETE /api/finance/invoices/:id
+finance.delete('/invoices/:id', async (c) => {
+  const id = parseInt(c.req.param('id'))
+  const existing = await c.env.DB.prepare('SELECT id FROM invoices WHERE id = ?').bind(id).first()
+  if (!existing) return c.json({ error: '請求書が見つかりません' }, 404)
+
+  await c.env.DB.prepare('DELETE FROM invoices WHERE id = ?').bind(id).run()
+  return c.json({ success: true })
+})
+
+// ===== 月次予算 =====
+
+// GET /api/finance/budgets?year_month=YYYY-MM
+finance.get('/budgets', async (c) => {
+  const yearMonth = c.req.query('year_month') ?? new Date().toISOString().slice(0, 7)
+
+  const result = await c.env.DB.prepare(
+    'SELECT * FROM budgets WHERE year_month = ? ORDER BY category ASC'
+  ).bind(yearMonth).all()
+
+  return c.json(result.results ?? [])
+})
+
+// POST /api/finance/budgets (UPSERT)
+finance.post('/budgets', async (c) => {
+  const body = await c.req.json<{
+    year_month: string
+    category: string
+    amount: number
+  }>()
+
+  if (!body.year_month || !body.category || body.amount == null) {
+    return c.json({ error: '必須項目が不足しています' }, 400)
+  }
+
+  await c.env.DB.prepare(
+    `INSERT INTO budgets (year_month, category, amount, created_by)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(year_month, category) DO UPDATE SET
+       amount = excluded.amount,
+       created_by = excluded.created_by`
+  )
+    .bind(body.year_month, body.category, body.amount, c.get('userName'))
+    .run()
+
+  const row = await c.env.DB.prepare(
+    'SELECT * FROM budgets WHERE year_month = ? AND category = ?'
+  ).bind(body.year_month, body.category).first()
+
+  return c.json(row, 200)
+})
+
+// DELETE /api/finance/budgets/:id
+finance.delete('/budgets/:id', async (c) => {
+  const id = parseInt(c.req.param('id'))
+  await c.env.DB.prepare('DELETE FROM budgets WHERE id = ?').bind(id).run()
+  return c.json({ success: true })
+})
+
+// GET /api/finance/budget-vs-actual?year_month=YYYY-MM
+finance.get('/budget-vs-actual', async (c) => {
+  const yearMonth = c.req.query('year_month') ?? new Date().toISOString().slice(0, 7)
+
+  const budgets = await c.env.DB.prepare(
+    'SELECT category, amount FROM budgets WHERE year_month = ?'
+  ).bind(yearMonth).all<{ category: string; amount: number }>()
+
+  const actuals = await c.env.DB.prepare(
+    `SELECT category, SUM(amount) as actual
+     FROM transactions
+     WHERE type = 'expense' AND date LIKE ?
+     GROUP BY category`
+  ).bind(`${yearMonth}%`).all<{ category: string; actual: number }>()
+
+  const budgetMap = new Map((budgets.results ?? []).map(b => [b.category, b.amount]))
+  const actualMap = new Map((actuals.results ?? []).map(a => [a.category, a.actual]))
+
+  const categories = new Set([...budgetMap.keys(), ...actualMap.keys()])
+  const result = Array.from(categories).sort().map(cat => ({
+    category: cat,
+    budget: budgetMap.get(cat) ?? 0,
+    actual: actualMap.get(cat) ?? 0,
+  }))
+
+  return c.json(result)
+})
+
 export default finance

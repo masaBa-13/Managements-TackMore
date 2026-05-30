@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { AlertCircle, DollarSign, CheckSquare, TrendingUp } from 'lucide-react'
-import { fetchFinanceSummary } from '../api/finance'
+import { AlertCircle, DollarSign, CheckSquare, TrendingUp, FileText } from 'lucide-react'
+import { fetchFinanceSummary, fetchInvoiceAlerts } from '../api/finance'
 import { fetchLegalAlerts } from '../api/legal'
 import { fetchTasks } from '../api/tasks'
 import { fetchMarketNotes } from '../api/market'
@@ -38,6 +38,11 @@ export default function Dashboard() {
   const { data: marketNotes } = useQuery({
     queryKey: ['market-notes'],
     queryFn: () => fetchMarketNotes(),
+  })
+
+  const { data: invoiceAlerts } = useQuery({
+    queryKey: ['invoice-alerts'],
+    queryFn: fetchInvoiceAlerts,
   })
 
   const today = new Date().toISOString().slice(0, 10)
@@ -168,6 +173,70 @@ export default function Dashboard() {
             <div className="text-sm text-gray-400">
               {legalAlerts ? '期日が近い項目はありません' : '読み込み中...'}
             </div>
+          )}
+        </div>
+
+        {/* Invoice Alerts */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <FileText size={16} className="text-indigo-600" />
+            </div>
+            <h2 className="font-semibold text-gray-900">請求書アラート</h2>
+            {invoiceAlerts && invoiceAlerts.length > 0 && (
+              <span className="ml-auto bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                {invoiceAlerts.length}件
+              </span>
+            )}
+          </div>
+
+          {invoiceAlerts ? (
+            invoiceAlerts.length > 0 ? (
+              <ul className="space-y-2">
+                {invoiceAlerts.slice(0, 5).map((inv) => {
+                  const daysLeft = Math.ceil(
+                    (new Date(inv.due_date).getTime() - new Date(today).getTime()) / 86400000
+                  )
+                  const isOverdue = inv.status !== 'paid' && daysLeft < 0
+
+                  return (
+                    <li
+                      key={inv.id}
+                      className={`text-sm rounded-lg px-3 py-2 ${
+                        inv.status === 'draft'
+                          ? 'bg-gray-50 text-gray-800'
+                          : isOverdue
+                          ? 'bg-red-50 text-red-800'
+                          : 'bg-amber-50 text-amber-800'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium truncate">{inv.client_name}</span>
+                        <span className="text-xs ml-2 shrink-0">
+                          {inv.status === 'draft' ? '未送付' : isOverdue ? `${Math.abs(daysLeft)}日超過` : `残${daysLeft}日`}
+                        </span>
+                      </div>
+                      <div className="text-xs opacity-70 mt-0.5">
+                        {inv.title} · {formatYen(inv.amount)}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : (
+              <div className="text-sm text-gray-400">対応が必要な請求書はありません</div>
+            )
+          ) : (
+            <div className="text-sm text-gray-400">読み込み中...</div>
+          )}
+
+          {invoiceAlerts && invoiceAlerts.length > 0 && (
+            <button
+              onClick={() => navigate('/finance/invoices')}
+              className="text-sm text-indigo-600 font-medium hover:underline"
+            >
+              請求書管理へ →
+            </button>
           )}
         </div>
 
