@@ -12,6 +12,7 @@ import {
   type Task,
   type TaskNode,
 } from '../../api/tasks'
+import AssigneeSelect from '../../components/AssigneeSelect'
 
 const priorityLabel: Record<string, string> = {
   high: '高',
@@ -85,12 +86,10 @@ function AddTaskForm({ parentId, level, onClose, projects }: AddTaskFormProps) {
         <datalist id="project-list">
           {projects.map((p) => <option key={p} value={p} />)}
         </datalist>
-        <input
-          type="text"
-          placeholder="担当者"
+        <AssigneeSelect
           value={assignee}
-          onChange={(e) => setAssignee(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          onChange={setAssignee}
+          className="w-full"
         />
         <input
           type="date"
@@ -170,12 +169,10 @@ function EditTaskForm({ task, onClose }: EditTaskFormProps) {
         autoFocus
       />
       <div className="grid grid-cols-2 gap-2">
-        <input
-          type="text"
-          placeholder="担当者"
+        <AssigneeSelect
           value={assignee}
-          onChange={(e) => setAssignee(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+          onChange={setAssignee}
+          className="w-full"
         />
         <input
           type="date"

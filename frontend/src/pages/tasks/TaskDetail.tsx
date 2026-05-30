@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { updateTask, deleteTask, type Task } from '../../api/tasks'
+import AssigneeSelect from '../../components/AssigneeSelect'
 
 interface TaskDetailProps {
   task: Task
@@ -81,12 +82,7 @@ export default function TaskDetail({ task, onClose }: TaskDetailProps) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">担当者</label>
-              <input
-                type="text"
-                value={assignee}
-                onChange={(e) => setAssignee(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-              />
+              <AssigneeSelect value={assignee} onChange={setAssignee} className="w-full" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">期日</label>
