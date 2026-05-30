@@ -128,7 +128,7 @@ export default function Dashboard() {
     <div className="min-h-screen -m-4 md:-m-6 p-4 md:p-6 bg-[#000000]">
       {/* Reminder banner */}
       {summary?.balance_reminder_needed && (
-        <div className="mb-4 bg-gradient-to-r from-rose-500/20 to-pink-500/20 border border-rose-500/30 rounded-xl px-4 py-3 flex items-center justify-between backdrop-blur">
+        <div className="mb-4 bg-gradient-to-r from-rose-500/20 to-pink-500/20 border border-rose-500/30 rounded-md px-4 py-3 flex items-center justify-between backdrop-blur">
           <div className="flex items-center gap-2 text-rose-300">
             <AlertCircle size={16} />
             <span className="text-sm font-medium">今月の残高がまだ入力されていません</span>
@@ -145,8 +145,7 @@ export default function Dashboard() {
       {/* KPI Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         {/* Balance */}
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-fuchsia-500/30 transition-colors">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-fuchsia-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">残高</div>
           <div className="text-xl md:text-2xl font-bold text-white tracking-tight">
             {summary?.latest_balance != null ? formatYenShort(summary.latest_balance) : '---'}
@@ -157,8 +156,7 @@ export default function Dashboard() {
         </div>
 
         {/* Income */}
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">今月収入</div>
           <div className="text-xl md:text-2xl font-bold text-emerald-400 tracking-tight">
             {summary ? formatYenShort(summary.income_total) : '---'}
@@ -170,8 +168,7 @@ export default function Dashboard() {
         </div>
 
         {/* Expense */}
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-rose-500/30 transition-colors">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-rose-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">今月支出</div>
           <div className="text-xl md:text-2xl font-bold text-rose-400 tracking-tight">
             {summary ? formatYenShort(summary.expense_total) : '---'}
@@ -183,8 +180,7 @@ export default function Dashboard() {
         </div>
 
         {/* Runway */}
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-4 relative overflow-hidden group hover:border-amber-500/30 transition-colors">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">ランウェイ</div>
           <div className="text-xl md:text-2xl font-bold text-amber-400 tracking-tight">
             {summary?.runway_months != null ? `${summary.runway_months}ヶ月` : '---'}
@@ -197,7 +193,7 @@ export default function Dashboard() {
 
       {/* Main Chart */}
       {trend.length > 0 && (
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-5 mb-5">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-5 mb-5">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-sm font-semibold text-white tracking-wide">収支・残高推移</h2>
@@ -321,7 +317,7 @@ export default function Dashboard() {
       {/* Bottom Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Cash Summary */}
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-5">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 bg-fuchsia-500/10 rounded-lg flex items-center justify-center">
               <DollarSign size={14} className="text-fuchsia-400" />
@@ -364,7 +360,7 @@ export default function Dashboard() {
         </div>
 
         {/* Task Progress - Donut */}
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-5">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 bg-sky-500/10 rounded-lg flex items-center justify-center">
               <CheckSquare size={14} className="text-sky-400" />
@@ -437,7 +433,7 @@ export default function Dashboard() {
         </div>
 
         {/* Alerts combined */}
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-5">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 bg-rose-500/10 rounded-lg flex items-center justify-center">
               <AlertCircle size={14} className="text-rose-400" />
@@ -542,7 +538,7 @@ export default function Dashboard() {
 
       {/* Market Notes - bottom bar */}
       {marketNotes && marketNotes.length > 0 && (
-        <div className="mt-4 bg-[#111111] border border-white/5 rounded-xl p-4">
+        <div className="mt-4 bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 bg-gray-500/10 rounded flex items-center justify-center">
               <TrendingUp size={12} className="text-gray-400" />
