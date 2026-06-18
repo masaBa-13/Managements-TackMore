@@ -16,10 +16,10 @@ function formatYen(amount: number): string {
 }
 
 const statusConfig = {
-  draft: { label: '下書き', bg: 'bg-gray-100 text-gray-700', icon: null },
-  sent: { label: '送付済', bg: 'bg-blue-100 text-blue-700', icon: Send },
-  paid: { label: '入金済', bg: 'bg-green-100 text-green-700', icon: CheckCircle },
-  overdue: { label: '期限超過', bg: 'bg-red-100 text-red-700', icon: AlertTriangle },
+  draft: { label: '下書き', bg: 'bg-white/10 text-gray-400', icon: null },
+  sent: { label: '送付済', bg: 'bg-sky-500/20 text-sky-400', icon: Send },
+  paid: { label: '入金済', bg: 'bg-emerald-500/20 text-emerald-400', icon: CheckCircle },
+  overdue: { label: '期限超過', bg: 'bg-rose-500/20 text-rose-400', icon: AlertTriangle },
 }
 
 function daysUntil(dateStr: string): number {
@@ -84,17 +84,17 @@ export default function InvoicesPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-xs text-gray-500">未回収総額</div>
-          <div className="text-xl font-bold text-gray-900 mt-1">{formatYen(totalUnpaid)}</div>
+          <div className="text-xl font-bold text-gray-200 mt-1">{formatYen(totalUnpaid)}</div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-xs text-gray-500">未送付</div>
-          <div className="text-xl font-bold text-amber-600 mt-1">{draftCount}件</div>
+          <div className="text-xl font-bold text-amber-400 mt-1">{draftCount}件</div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-xs text-gray-500">期限超過</div>
-          <div className="text-xl font-bold text-red-600 mt-1">{overdueCount}件</div>
+          <div className="text-xl font-bold text-rose-400 mt-1">{overdueCount}件</div>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export default function InvoicesPage() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+          className="bg-[#111111] border border-white/10 text-white rounded-md px-3 py-1.5 text-sm"
         >
           <option value="">すべて</option>
           <option value="draft">下書き</option>
@@ -113,7 +113,7 @@ export default function InvoicesPage() {
         </select>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-300 rounded-md hover:bg-white/10"
         >
           <Plus size={14} />
           請求書作成
@@ -122,42 +122,42 @@ export default function InvoicesPage() {
 
       {/* Add form */}
       {showForm && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-          <div className="text-sm font-medium text-gray-800">新規請求書</div>
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4 space-y-3">
+          <div className="text-sm font-medium text-gray-200">新規請求書</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-gray-500 mb-1">請求先</label>
               <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)}
-                placeholder="例: 株式会社ABC" className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                placeholder="例: 株式会社ABC" className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">件名</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
-                placeholder="例: 2026年5月 開発費" className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                placeholder="例: 2026年5月 開発費" className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">金額（円）</label>
               <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)}
-                placeholder="0" className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                placeholder="0" className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">発行日</label>
               <input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">支払期日</label>
               <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">備考</label>
               <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
           </div>
           <div className="flex gap-2 justify-end">
-            <button onClick={() => setShowForm(false)} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+            <button onClick={() => setShowForm(false)} className="px-3 py-1.5 text-sm text-gray-400 hover:bg-white/5 rounded-md">
               キャンセル
             </button>
             <button
@@ -169,7 +169,7 @@ export default function InvoicesPage() {
                 })
               }}
               disabled={!clientName || !title || !amount || !dueDate || createMutation.isPending}
-              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md hover:bg-fuchsia-600 disabled:opacity-50"
             >
               {createMutation.isPending ? '作成中...' : '作成'}
             </button>
@@ -178,16 +178,16 @@ export default function InvoicesPage() {
       )}
 
       {/* Invoice list */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-[#111111] border border-white/5 rounded-md overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400">読み込み中...</div>
+          <div className="p-8 text-center text-gray-600">読み込み中...</div>
         ) : invoices.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">請求書がありません</div>
+          <div className="p-8 text-center text-gray-600">請求書がありません</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
+                <tr className="border-b border-white/5 bg-white/[0.03]">
                   <th className="px-3 py-2 text-xs font-medium text-gray-500">ステータス</th>
                   <th className="px-3 py-2 text-xs font-medium text-gray-500">請求先</th>
                   <th className="px-3 py-2 text-xs font-medium text-gray-500">件名</th>
@@ -206,22 +206,22 @@ export default function InvoicesPage() {
                     <tr
                       key={inv.id}
                       className={clsx(
-                        'border-b border-gray-100 hover:bg-gray-50',
-                        isOverdue && 'bg-red-50',
-                        isUrgent && 'bg-amber-50'
+                        'border-b border-white/5 hover:bg-white/5',
+                        isOverdue && 'bg-rose-500/5',
+                        isUrgent && 'bg-amber-500/5'
                       )}
                     >
                       <td className="px-3 py-2">
                         <StatusBadge invoice={inv} />
                       </td>
-                      <td className="px-3 py-2 text-sm text-gray-700">{inv.client_name}</td>
-                      <td className="px-3 py-2 text-sm text-gray-700">{inv.title}</td>
-                      <td className="px-3 py-2 text-sm font-medium text-gray-900 text-right">{formatYen(inv.amount)}</td>
+                      <td className="px-3 py-2 text-sm text-gray-300">{inv.client_name}</td>
+                      <td className="px-3 py-2 text-sm text-gray-300">{inv.title}</td>
+                      <td className="px-3 py-2 text-sm font-medium text-gray-200 text-right">{formatYen(inv.amount)}</td>
                       <td className="px-3 py-2 text-sm">
                         <span className={clsx(
-                          isOverdue && 'text-red-600 font-medium',
-                          isUrgent && 'text-amber-600 font-medium',
-                          !isOverdue && !isUrgent && 'text-gray-600'
+                          isOverdue && 'text-rose-400 font-medium',
+                          isUrgent && 'text-amber-400 font-medium',
+                          !isOverdue && !isUrgent && 'text-gray-400'
                         )}>
                           {inv.due_date}
                           {isOverdue && ` (${Math.abs(days)}日超過)`}
@@ -233,7 +233,7 @@ export default function InvoicesPage() {
                           {inv.status === 'draft' && (
                             <button
                               onClick={() => updateMutation.mutate({ id: inv.id, data: { status: 'sent' } })}
-                              className="text-blue-500 hover:text-blue-700 p-1" title="送付済にする"
+                              className="text-sky-400 hover:text-sky-300 p-1" title="送付済にする"
                             >
                               <Send size={14} />
                             </button>
@@ -241,7 +241,7 @@ export default function InvoicesPage() {
                           {(inv.status === 'sent' || inv.status === 'overdue') && (
                             <button
                               onClick={() => updateMutation.mutate({ id: inv.id, data: { status: 'paid' } })}
-                              className="text-green-500 hover:text-green-700 p-1" title="入金確認"
+                              className="text-emerald-400 hover:text-emerald-300 p-1" title="入金確認"
                             >
                               <CheckCircle size={14} />
                             </button>
@@ -251,7 +251,7 @@ export default function InvoicesPage() {
                               onClick={() => {
                                 if (window.confirm('この請求書を削除しますか？')) deleteMutation.mutate(inv.id)
                               }}
-                              className="text-red-400 hover:text-red-600 p-1" title="削除"
+                              className="text-rose-400 hover:text-rose-300 p-1" title="削除"
                             >
                               <Trash2 size={14} />
                             </button>

@@ -53,7 +53,7 @@ function FixedExpenseForm({
     setForm((prev) => ({ ...prev, [field]: value }))
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+    <div className="bg-[#111111] border border-white/5 rounded-md p-4 space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-gray-500 mb-1">名称</label>
@@ -61,7 +61,7 @@ function FixedExpenseForm({
             type="text"
             value={form.name}
             onChange={(e) => set('name', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
             placeholder="例: AWS費用, HP管理費"
           />
         </div>
@@ -70,7 +70,7 @@ function FixedExpenseForm({
           <select
             value={form.type}
             onChange={(e) => set('type', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           >
             <option value="expense">支出（定期支払）</option>
             <option value="income">収入（定期入金）</option>
@@ -82,7 +82,7 @@ function FixedExpenseForm({
             type="text"
             value={form.category}
             onChange={(e) => set('category', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
             placeholder="例: インフラ費"
           />
         </div>
@@ -92,7 +92,7 @@ function FixedExpenseForm({
             type="number"
             value={form.amount}
             onChange={(e) => set('amount', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           />
         </div>
         <div>
@@ -103,7 +103,7 @@ function FixedExpenseForm({
             max={31}
             value={form.billing_day}
             onChange={(e) => set('billing_day', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           />
         </div>
         <div>
@@ -112,7 +112,7 @@ function FixedExpenseForm({
             type="month"
             value={form.start_month}
             onChange={(e) => set('start_month', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           />
         </div>
         <div>
@@ -121,7 +121,7 @@ function FixedExpenseForm({
             type="month"
             value={form.end_month}
             onChange={(e) => set('end_month', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           />
         </div>
         <div className="col-span-2">
@@ -130,18 +130,18 @@ function FixedExpenseForm({
             type="text"
             value={form.note}
             onChange={(e) => set('note', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           />
         </div>
       </div>
       <div className="flex gap-2 justify-end">
-        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-400 hover:bg-white/5 rounded-md">
           キャンセル
         </button>
         <button
           onClick={() => onSubmit(form)}
           disabled={!form.name || !form.category || !form.amount || isPending}
-          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md hover:bg-fuchsia-600 disabled:opacity-50"
         >
           {isPending ? '保存中...' : '保存'}
         </button>
@@ -211,23 +211,23 @@ export default function FixedExpenses() {
 
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="text-sm text-red-700">月間定期支出（有効）</div>
-          <div className="text-2xl font-bold text-red-900 mt-1">{formatYen(monthlyExpense)}</div>
-          <div className="text-xs text-red-500 mt-1">{activeItems.filter(e => e.type === 'expense').length}件</div>
+        <div className="bg-rose-500/10 border border-rose-500/20 rounded-md p-4">
+          <div className="text-sm text-rose-400">月間定期支出（有効）</div>
+          <div className="text-2xl font-bold text-rose-300 mt-1">{formatYen(monthlyExpense)}</div>
+          <div className="text-xs text-rose-500 mt-1">{activeItems.filter(e => e.type === 'expense').length}件</div>
         </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="text-sm text-blue-700">月間定期収入（有効）</div>
-          <div className="text-2xl font-bold text-blue-900 mt-1">{formatYen(monthlyIncome)}</div>
-          <div className="text-xs text-blue-500 mt-1">{activeItems.filter(e => e.type === 'income').length}件</div>
+        <div className="bg-sky-500/10 border border-sky-500/20 rounded-md p-4">
+          <div className="text-sm text-sky-400">月間定期収入（有効）</div>
+          <div className="text-2xl font-bold text-sky-300 mt-1">{formatYen(monthlyIncome)}</div>
+          <div className="text-xs text-sky-500 mt-1">{activeItems.filter(e => e.type === 'income').length}件</div>
         </div>
       </div>
 
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium text-gray-700">定期収支マスタ</h3>
+        <h3 className="text-sm font-medium text-gray-300">定期収支マスタ</h3>
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-300 rounded-md hover:bg-white/10"
         >
           <Plus size={14} />
           追加
@@ -242,15 +242,15 @@ export default function FixedExpenses() {
         />
       )}
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-[#111111] border border-white/5 rounded-md overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400">読み込み中...</div>
+          <div className="p-8 text-center text-gray-600">読み込み中...</div>
         ) : expenses.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">定期収支が登録されていません</div>
+          <div className="p-8 text-center text-gray-600">定期収支が登録されていません</div>
         ) : (
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
+              <tr className="border-b border-white/5 bg-white/[0.03]">
                 <th className="px-4 py-2.5 text-xs font-medium text-gray-500">名称</th>
                 <th className="px-3 py-2.5 text-xs font-medium text-gray-500">種別</th>
                 <th className="px-3 py-2.5 text-xs font-medium text-gray-500 hidden sm:table-cell">カテゴリ</th>
@@ -267,25 +267,25 @@ export default function FixedExpenses() {
                   <tr
                     key={exp.id}
                     className={clsx(
-                      'border-b border-gray-100 hover:bg-gray-50',
+                      'border-b border-white/5 hover:bg-white/5',
                       exp.is_active === 0 && 'opacity-50'
                     )}
                   >
                     <td className="px-4 py-2.5">
-                      <div className="text-sm font-medium text-gray-900">{exp.name}</div>
-                      {exp.note && <div className="text-xs text-gray-400">{exp.note}</div>}
+                      <div className="text-sm font-medium text-gray-200">{exp.name}</div>
+                      {exp.note && <div className="text-xs text-gray-600">{exp.note}</div>}
                     </td>
                     <td className="px-3 py-2.5">
                       <span className={clsx(
                         'text-xs px-2 py-0.5 rounded-full font-medium',
-                        exp.type === 'income' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+                        exp.type === 'income' ? 'bg-sky-500/20 text-sky-400' : 'bg-rose-500/20 text-rose-400'
                       )}>
                         {exp.type === 'income' ? '収入' : '支出'}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 text-sm text-gray-600 hidden sm:table-cell">{exp.category}</td>
+                    <td className="px-3 py-2.5 text-sm text-gray-400 hidden sm:table-cell">{exp.category}</td>
                     <td className="px-3 py-2.5 text-sm font-medium text-right">
-                      <span className={exp.type === 'income' ? 'text-blue-600' : 'text-gray-900'}>
+                      <span className={exp.type === 'income' ? 'text-sky-400' : 'text-gray-200'}>
                         {formatYen(exp.amount)}
                       </span>
                     </td>
@@ -295,7 +295,7 @@ export default function FixedExpenses() {
                       <span
                         className={clsx(
                           'text-xs px-2 py-0.5 rounded-full font-medium',
-                          exp.is_active === 1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                          exp.is_active === 1 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-gray-500'
                         )}
                       >
                         {exp.is_active === 1 ? '有効' : '無効'}
@@ -305,7 +305,7 @@ export default function FixedExpenses() {
                       <div className="flex gap-1">
                         <button
                           onClick={() => setEditingId(exp.id)}
-                          className="p-1 text-gray-400 hover:bg-gray-100 rounded"
+                          className="p-1 text-gray-500 hover:bg-white/10 rounded"
                         >
                           <Edit2 size={14} />
                         </button>
@@ -315,7 +315,7 @@ export default function FixedExpenses() {
                               deleteMutation.mutate(exp.id)
                             }
                           }}
-                          className="p-1 text-red-400 hover:bg-red-50 rounded"
+                          className="p-1 text-rose-400 hover:bg-white/10 rounded"
                         >
                           <Trash2 size={14} />
                         </button>

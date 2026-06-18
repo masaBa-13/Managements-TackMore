@@ -639,19 +639,43 @@ finance.delete('/income-forecasts/:id', async (c) => {
 // ===== 月次推移（ダッシュボード用） =====
 
 finance.get('/monthly-trend', async (c) => {
-  const months = parseInt(c.req.query('months') ?? '6')
+  const pastMonths = parseInt(c.req.query('months') ?? '6')
+  const futureMonths = parseInt(c.req.query('future_months') ?? '0')
   const includeForecast = c.req.query('include_forecast') === 'true'
 
-  // Build list of last N months
-  const monthList: string[] = []
   const now = new Date()
-  for (let i = months - 1; i >= 0; i--) {
+  const currentYM = now.toISOString().slice(0, 7)
+
+  // Build month list: past + current + future
+  const monthList: string[] = []
+  for (let i = pastMonths - 1; i >= -futureMonths; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
     monthList.push(d.toISOString().slice(0, 7))
   }
 
-  const result = []
+  // Pre-fetch fixed expenses/income for projection
+  const fixedExpenses = await c.env.DB.prepare(
+    `SELECT amount, type, start_month, end_month FROM fixed_expenses WHERE is_active = 1`
+  ).all<{ amount: number; type: string; start_month: string; end_month: string | null }>()
+
+  // Get latest known balance for projection
+  const latestBal = await c.env.DB.prepare(
+    'SELECT recorded_month, balance FROM cash_balances ORDER BY recorded_month DESC LIMIT 1'
+  ).first<{ recorded_month: string; balance: number } | null>()
+
+  const result: {
+    month: string
+    income: number
+    expense: number
+    balance: number | null
+    forecast_income: number
+    is_projection?: boolean
+  }[] = []
+
   for (const ym of monthList) {
+    const isFuture = ym > currentYM
+
+    // Actual transaction data
     const txTotals = await c.env.DB.prepare(
       `SELECT
          SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
@@ -664,7 +688,7 @@ finance.get('/monthly-trend', async (c) => {
     ).bind(ym).first<{ balance: number } | null>()
 
     let forecastIncome = 0
-    if (includeForecast) {
+    if (includeForecast || isFuture) {
       const fc = await c.env.DB.prepare(
         `SELECT SUM(amount) as total FROM income_forecasts
          WHERE expected_date LIKE ? AND status IN ('forecast', 'confirmed')`
@@ -672,13 +696,48 @@ finance.get('/monthly-trend', async (c) => {
       forecastIncome = fc?.total ?? 0
     }
 
-    result.push({
-      month: ym,
-      income: txTotals?.income ?? 0,
-      expense: txTotals?.expense ?? 0,
-      balance: bal?.balance ?? null,
-      forecast_income: forecastIncome,
-    })
+    if (isFuture) {
+      // Project income/expense from fixed items
+      let projectedIncome = 0
+      let projectedExpense = 0
+      for (const fe of (fixedExpenses.results ?? [])) {
+        if (fe.start_month <= ym && (!fe.end_month || fe.end_month >= ym)) {
+          if (fe.type === 'income') projectedIncome += fe.amount
+          else projectedExpense += fe.amount
+        }
+      }
+
+      result.push({
+        month: ym,
+        income: projectedIncome + forecastIncome,
+        expense: projectedExpense,
+        balance: null, // will be calculated below
+        forecast_income: forecastIncome,
+        is_projection: true,
+      })
+    } else {
+      result.push({
+        month: ym,
+        income: txTotals?.income ?? 0,
+        expense: txTotals?.expense ?? 0,
+        balance: bal?.balance ?? null,
+        forecast_income: forecastIncome,
+      })
+    }
+  }
+
+  // Calculate projected balance for future months
+  if (futureMonths > 0 && latestBal) {
+    let runningBalance = latestBal.balance
+    // Find the index of the latest known balance month
+    const latestIdx = result.findIndex(r => r.month === latestBal.recorded_month)
+    if (latestIdx >= 0) {
+      for (let i = latestIdx + 1; i < result.length; i++) {
+        const r = result[i]
+        runningBalance = runningBalance + r.income - r.expense
+        r.balance = runningBalance
+      }
+    }
   }
 
   return c.json(result)

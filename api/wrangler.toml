@@ -8,8 +8,12 @@ binding = "DB"
 database_name = "tackmore-dashboard"
 database_id = "d59a3b1d-f159-4e23-9136-304c09842745"
 
+[ai]
+binding = "AI"
+
 [triggers]
 crons = [
   "0 0 1 * *",
-  "0 0 * * *"
+  "0 0 * * *",
+  "0 21 * * *"
 ]

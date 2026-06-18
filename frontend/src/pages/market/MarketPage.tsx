@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2, Edit2, ExternalLink, X } from 'lucide-react'
+import { Plus, Trash2, Edit2, ExternalLink, X, Zap } from 'lucide-react'
 import { clsx } from 'clsx'
 import {
   fetchMarketNotes,
@@ -24,6 +24,8 @@ const emptyForm: MarketFormData = {
   source_url: '',
 }
 
+type SourceTab = 'all' | 'auto' | 'manual'
+
 function MarketForm({
   initial,
   onSubmit,
@@ -40,14 +42,14 @@ function MarketForm({
     setForm((prev) => ({ ...prev, [field]: value }))
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+    <div className="bg-[#111111] border border-white/5 rounded-md p-4 space-y-3">
       <div>
         <label className="block text-xs text-gray-500 mb-1">タイトル</label>
         <input
           type="text"
           value={form.title}
           onChange={(e) => set('title', e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+          className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           autoFocus
         />
       </div>
@@ -57,7 +59,7 @@ function MarketForm({
           value={form.content}
           onChange={(e) => set('content', e.target.value)}
           rows={4}
-          className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm resize-none"
+          className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500 resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -68,7 +70,7 @@ function MarketForm({
             value={form.tags}
             onChange={(e) => set('tags', e.target.value)}
             placeholder="競合, 業界動向"
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           />
         </div>
         <div>
@@ -77,18 +79,18 @@ function MarketForm({
             type="url"
             value={form.source_url}
             onChange={(e) => set('source_url', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           />
         </div>
       </div>
       <div className="flex gap-2 justify-end">
-        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-400 hover:bg-white/5 rounded-md">
           キャンセル
         </button>
         <button
           onClick={() => onSubmit(form)}
           disabled={!form.title || !form.content || isPending}
-          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md hover:bg-fuchsia-600 disabled:opacity-50"
         >
           {isPending ? '保存中...' : '保存'}
         </button>
@@ -110,10 +112,12 @@ export default function MarketPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
+  const [sourceTab, setSourceTab] = useState<SourceTab>('all')
 
   const { data: notes = [], isLoading } = useQuery({
-    queryKey: ['market-notes'],
-    queryFn: () => fetchMarketNotes(),
+    queryKey: ['market-notes', sourceTab],
+    queryFn: () =>
+      fetchMarketNotes(sourceTab === 'all' ? undefined : { source: sourceTab }),
   })
 
   const createMutation = useMutation({
@@ -172,8 +176,35 @@ export default function MarketPage() {
     })
   }
 
+  const isAutoNote = (note: MarketNote) => note.created_by === 'system-auto'
+
+  const tabs: { key: SourceTab; label: string }[] = [
+    { key: 'all', label: 'すべて' },
+    { key: 'auto', label: '自動ニュース' },
+    { key: 'manual', label: '手動メモ' },
+  ]
+
   return (
     <div className="space-y-5">
+      {/* Source tabs */}
+      <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-md p-0.5 w-fit">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setSourceTab(tab.key)}
+            className={clsx(
+              'px-3 py-1.5 text-xs rounded transition-colors',
+              sourceTab === tab.key
+                ? 'bg-fuchsia-500 text-white font-medium'
+                : 'text-gray-400 hover:text-gray-200'
+            )}
+          >
+            {tab.key === 'auto' && <Zap size={11} className="inline mr-1 -mt-0.5" />}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <input
@@ -181,7 +212,7 @@ export default function MarketPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="タイトル・内容を検索..."
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm w-full sm:w-64"
+          className="bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm w-full sm:w-64"
         />
         {allTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 items-center">
@@ -192,8 +223,8 @@ export default function MarketPage() {
                 className={clsx(
                   'text-xs px-2.5 py-1 rounded-full border transition-colors',
                   selectedTags.has(tag)
-                    ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'
+                    ? 'bg-fuchsia-500 text-white border-fuchsia-500'
+                    : 'bg-white/5 text-gray-400 border-white/10 hover:border-fuchsia-500/50'
                 )}
               >
                 {tag}
@@ -202,7 +233,7 @@ export default function MarketPage() {
             {selectedTags.size > 0 && (
               <button
                 onClick={() => setSelectedTags(new Set())}
-                className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-0.5"
+                className="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-0.5"
               >
                 <X size={12} />
                 クリア
@@ -210,15 +241,17 @@ export default function MarketPage() {
             )}
           </div>
         )}
-        <div className="sm:ml-auto">
-          <button
-            onClick={() => setShowAdd(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 whitespace-nowrap"
-          >
-            <Plus size={14} />
-            メモ追加
-          </button>
-        </div>
+        {sourceTab !== 'auto' && (
+          <div className="sm:ml-auto">
+            <button
+              onClick={() => setShowAdd(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-300 rounded-md hover:bg-white/10 whitespace-nowrap"
+            >
+              <Plus size={14} />
+              メモ追加
+            </button>
+          </div>
+        )}
       </div>
 
       {showAdd && (
@@ -230,33 +263,43 @@ export default function MarketPage() {
       )}
 
       {isLoading ? (
-        <div className="p-8 text-center text-gray-400">読み込み中...</div>
+        <div className="p-8 text-center text-gray-600">読み込み中...</div>
       ) : filteredNotes.length === 0 ? (
-        <div className="p-8 text-center text-gray-400">
-          {searchQuery || selectedTags.size > 0 ? '検索条件に一致するメモがありません' : 'メモがありません'}
+        <div className="p-8 text-center text-gray-600">
+          {searchQuery || selectedTags.size > 0
+            ? '検索条件に一致するメモがありません'
+            : sourceTab === 'auto'
+            ? '自動取得されたニュースはまだありません'
+            : 'メモがありません'}
         </div>
       ) : (
         <div className="space-y-3">
           {filteredNotes.map((note: MarketNote) => (
             <div key={note.id}>
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <div className="bg-[#111111] border border-white/5 rounded-md p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-gray-900">{note.title}</span>
+                      {isAutoNote(note) && (
+                        <span className="text-[10px] bg-sky-500/15 text-sky-400 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                          <Zap size={10} />
+                          自動取得
+                        </span>
+                      )}
+                      <span className="text-sm font-semibold text-gray-200">{note.title}</span>
                       {note.source_url && (
                         <a
                           href={note.source_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-indigo-500 hover:text-indigo-700"
+                          className="text-fuchsia-400 hover:text-fuchsia-300"
                         >
                           <ExternalLink size={13} />
                         </a>
                       )}
                     </div>
 
-                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">
                       {note.content}
                     </p>
 
@@ -264,36 +307,38 @@ export default function MarketPage() {
                       {note.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full cursor-pointer hover:bg-indigo-100"
+                          className="text-xs bg-fuchsia-500/10 text-fuchsia-400 px-2 py-0.5 rounded-full cursor-pointer hover:bg-fuchsia-500/20"
                           onClick={() => toggleTag(tag)}
                         >
                           #{tag}
                         </span>
                       ))}
-                      <span className="text-xs text-gray-400 ml-auto">
+                      <span className="text-xs text-gray-600 ml-auto">
                         {new Date(note.created_at).toLocaleDateString('ja-JP')}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex gap-1 shrink-0">
-                    <button
-                      onClick={() => setEditingId(note.id)}
-                      className="p-1.5 text-gray-400 hover:bg-gray-100 rounded"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm(`「${note.title}」を削除しますか？`)) {
-                          deleteMutation.mutate(note.id)
-                        }
-                      }}
-                      className="p-1.5 text-red-400 hover:bg-red-50 rounded"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+                  {!isAutoNote(note) && (
+                    <div className="flex gap-1 shrink-0">
+                      <button
+                        onClick={() => setEditingId(note.id)}
+                        className="p-1.5 text-gray-500 hover:bg-white/10 rounded"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`「${note.title}」を削除しますか？`)) {
+                            deleteMutation.mutate(note.id)
+                          }
+                        }}
+                        className="p-1.5 text-rose-400 hover:bg-white/10 rounded"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -10,10 +10,11 @@ export interface MarketNote {
   created_at: string
 }
 
-export async function fetchMarketNotes(params?: { tag?: string; q?: string }): Promise<MarketNote[]> {
+export async function fetchMarketNotes(params?: { tag?: string; q?: string; source?: 'auto' | 'manual' }): Promise<MarketNote[]> {
   const query = new URLSearchParams()
   if (params?.tag) query.set('tag', params.tag)
   if (params?.q) query.set('q', params.q)
+  if (params?.source) query.set('source', params.source)
   const url = `${API_BASE}/api/market${query.toString() ? `?${query}` : ''}`
   const res = await fetch(url)
   if (!res.ok) throw new Error('市場メモの取得に失敗しました')

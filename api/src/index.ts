@@ -9,8 +9,10 @@ import marketRouter from './routes/market'
 import membersRouter from './routes/members'
 import categoriesRouter from './routes/categories'
 import projectsRouter from './routes/projects'
+import settingsRouter from './routes/settings'
 import { runFixedExpensesCron } from './cron/fixedExpenses'
 import { runBalanceReminderCron } from './cron/balanceReminder'
+import { runFetchNewsCron } from './cron/fetchNews'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
@@ -42,6 +44,7 @@ app.route('/api/market', marketRouter)
 app.route('/api/members', membersRouter)
 app.route('/api/categories', categoriesRouter)
 app.route('/api/projects', projectsRouter)
+app.route('/api/settings', settingsRouter)
 
 // Health check
 app.get('/', (c) => c.json({ status: 'ok', name: 'TackMore Dashboard API' }))
@@ -62,6 +65,9 @@ export default {
     } else if (cron === '0 0 * * *') {
       // Daily: check balance reminder
       await runBalanceReminderCron(env.DB)
+    } else if (cron === '0 21 * * *') {
+      // Daily 06:00 JST: fetch tech news
+      await runFetchNewsCron(env.DB, env.AI)
     }
   },
 }

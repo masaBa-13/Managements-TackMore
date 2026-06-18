@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { ChevronRight, ChevronDown, Plus, Trash2, Edit2, LayoutGrid } from 'lucide-react'
+import { ChevronRight, ChevronDown, Plus, Trash2, Edit2, LayoutGrid, Sparkles } from 'lucide-react'
 import { clsx } from 'clsx'
 import {
-  fetchTasks,
+  fetchTasksWithOffline,
   createTask,
   deleteTask,
   updateTask,
@@ -13,6 +13,7 @@ import {
   type TaskNode,
 } from '../../api/tasks'
 import AssigneeSelect from '../../components/AssigneeSelect'
+import AiWbsWizard from './AiWbsWizard'
 
 const priorityLabel: Record<string, string> = {
   high: '高',
@@ -21,9 +22,9 @@ const priorityLabel: Record<string, string> = {
 }
 
 const priorityColor: Record<string, string> = {
-  high: 'bg-red-100 text-red-700',
-  medium: 'bg-yellow-100 text-yellow-700',
-  low: 'bg-green-100 text-green-700',
+  high: 'bg-rose-500/20 text-rose-400',
+  medium: 'bg-amber-500/20 text-amber-400',
+  low: 'bg-emerald-500/20 text-emerald-400',
 }
 
 const statusLabel: Record<string, string> = {
@@ -33,9 +34,9 @@ const statusLabel: Record<string, string> = {
 }
 
 const statusColor: Record<string, string> = {
-  todo: 'bg-gray-100 text-gray-600',
-  in_progress: 'bg-blue-100 text-blue-700',
-  done: 'bg-green-100 text-green-700',
+  todo: 'bg-white/10 text-gray-400',
+  in_progress: 'bg-sky-500/20 text-sky-400',
+  done: 'bg-emerald-500/20 text-emerald-400',
 }
 
 interface AddTaskFormProps {
@@ -64,14 +65,14 @@ function AddTaskForm({ parentId, level, onClose, projects }: AddTaskFormProps) {
   const levelLabel = level === 1 ? 'Epic' : level === 2 ? 'Task' : 'Subtask'
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-      <div className="text-sm font-medium text-blue-800">新規{levelLabel}を追加</div>
+    <div className="bg-white/5 border border-white/10 rounded-md p-4 space-y-3">
+      <div className="text-sm font-medium text-gray-400">新規{levelLabel}を追加</div>
       <input
         type="text"
         placeholder="タイトル（必須）"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
         autoFocus
       />
       <div className="grid grid-cols-2 gap-2">
@@ -81,7 +82,7 @@ function AddTaskForm({ parentId, level, onClose, projects }: AddTaskFormProps) {
           value={project}
           onChange={(e) => setProject(e.target.value)}
           list="project-list"
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
         />
         <datalist id="project-list">
           {projects.map((p) => <option key={p} value={p} />)}
@@ -95,12 +96,12 @@ function AddTaskForm({ parentId, level, onClose, projects }: AddTaskFormProps) {
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
         />
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value as 'high' | 'medium' | 'low')}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="bg-[#111111] border border-white/10 text-white rounded-md px-3 py-1.5 text-sm"
         >
           <option value="high">優先度: 高</option>
           <option value="medium">優先度: 中</option>
@@ -110,7 +111,7 @@ function AddTaskForm({ parentId, level, onClose, projects }: AddTaskFormProps) {
       <div className="flex gap-2 justify-end">
         <button
           onClick={onClose}
-          className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
+          className="px-3 py-1.5 text-sm text-gray-400 hover:bg-white/5 rounded-md"
         >
           キャンセル
         </button>
@@ -127,7 +128,7 @@ function AddTaskForm({ parentId, level, onClose, projects }: AddTaskFormProps) {
             })
           }}
           disabled={!title.trim() || mutation.isPending}
-          className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md hover:bg-fuchsia-600 disabled:opacity-50"
         >
           {mutation.isPending ? '追加中...' : '追加'}
         </button>
@@ -159,13 +160,13 @@ function EditTaskForm({ task, onClose }: EditTaskFormProps) {
   })
 
   return (
-    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3">
-      <div className="text-sm font-medium text-yellow-800">タスクを編集</div>
+    <div className="bg-white/5 border border-white/10 rounded-md p-4 space-y-3">
+      <div className="text-sm font-medium text-gray-400">タスクを編集</div>
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
         autoFocus
       />
       <div className="grid grid-cols-2 gap-2">
@@ -178,12 +179,12 @@ function EditTaskForm({ task, onClose }: EditTaskFormProps) {
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+          className="bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
         />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as Task['status'])}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+          className="bg-[#111111] border border-white/10 text-white rounded-md px-3 py-1.5 text-sm"
         >
           <option value="todo">未着手</option>
           <option value="in_progress">進行中</option>
@@ -192,7 +193,7 @@ function EditTaskForm({ task, onClose }: EditTaskFormProps) {
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value as Task['priority'])}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+          className="bg-[#111111] border border-white/10 text-white rounded-md px-3 py-1.5 text-sm"
         >
           <option value="high">優先度: 高</option>
           <option value="medium">優先度: 中</option>
@@ -200,7 +201,7 @@ function EditTaskForm({ task, onClose }: EditTaskFormProps) {
         </select>
       </div>
       <div className="flex gap-2 justify-end">
-        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-400 hover:bg-white/5 rounded-md">
           キャンセル
         </button>
         <button
@@ -217,7 +218,7 @@ function EditTaskForm({ task, onClose }: EditTaskFormProps) {
             })
           }}
           disabled={mutation.isPending}
-          className="px-3 py-1.5 text-sm bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:opacity-50"
+          className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md hover:bg-fuchsia-600 disabled:opacity-50"
         >
           {mutation.isPending ? '更新中...' : '更新'}
         </button>
@@ -264,8 +265,8 @@ function TaskRow({ node, expanded, onToggle, projects }: TaskRowProps) {
     <>
       <tr
         className={clsx(
-          'group border-b border-gray-100 hover:bg-gray-50',
-          node.level === 1 && 'bg-indigo-50 hover:bg-indigo-100'
+          'group border-b border-white/5 hover:bg-white/5',
+          node.level === 1 && 'bg-white/[0.03] hover:bg-white/5'
         )}
       >
         {/* WBS + Title */}
@@ -274,18 +275,18 @@ function TaskRow({ node, expanded, onToggle, projects }: TaskRowProps) {
             {canExpand ? (
               <button
                 onClick={() => onToggle(node.id)}
-                className="mr-1.5 text-gray-400 hover:text-gray-600"
+                className="mr-1.5 text-gray-600 hover:text-gray-400"
               >
                 {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               </button>
             ) : (
               <span className="mr-1.5 w-3.5 inline-block" />
             )}
-            <span className="text-xs text-gray-400 font-mono mr-2 w-16 shrink-0">{node.wbs_code}</span>
+            <span className="text-xs text-gray-600 font-mono mr-2 w-16 shrink-0">{node.wbs_code}</span>
             <span
               className={clsx(
                 'text-sm font-medium',
-                node.level === 1 ? 'text-indigo-900' : 'text-gray-800'
+                node.level === 1 ? 'text-white' : 'text-gray-200'
               )}
             >
               {node.title}
@@ -294,18 +295,18 @@ function TaskRow({ node, expanded, onToggle, projects }: TaskRowProps) {
         </td>
 
         {/* Assignee */}
-        <td className="px-3 py-2.5 text-sm text-gray-600 hidden sm:table-cell">
+        <td className="px-3 py-2.5 text-sm text-gray-400 hidden sm:table-cell">
           {node.assignee ?? '—'}
         </td>
 
         {/* Due date */}
         <td className="px-3 py-2.5 text-sm hidden md:table-cell">
           {node.due_date ? (
-            <span className={clsx(isOverdue && 'text-red-600 font-medium')}>
+            <span className={clsx(isOverdue ? 'text-rose-400 font-medium' : 'text-gray-400')}>
               {new Date(node.due_date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}
             </span>
           ) : (
-            <span className="text-gray-300">—</span>
+            <span className="text-gray-600">—</span>
           )}
         </td>
 
@@ -326,13 +327,13 @@ function TaskRow({ node, expanded, onToggle, projects }: TaskRowProps) {
         {/* Progress */}
         <td className="px-3 py-2.5 hidden md:table-cell">
           <div className="flex items-center gap-2">
-            <div className="w-16 bg-gray-200 rounded-full h-1.5">
+            <div className="w-16 bg-white/10 rounded-full h-1.5">
               <div
-                className="bg-blue-500 h-1.5 rounded-full"
+                className="bg-fuchsia-500 h-1.5 rounded-full"
                 style={{ width: `${node.progress}%` }}
               />
             </div>
-            <span className="text-xs text-gray-500">{node.progress}%</span>
+            <span className="text-xs text-gray-400">{node.progress}%</span>
           </div>
         </td>
 
@@ -342,7 +343,7 @@ function TaskRow({ node, expanded, onToggle, projects }: TaskRowProps) {
             {node.level < 3 && (
               <button
                 onClick={() => setAddingChild(node.id)}
-                className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                className="p-1 text-fuchsia-400 hover:bg-white/10 rounded"
                 title="子タスクを追加"
               >
                 <Plus size={14} />
@@ -350,14 +351,14 @@ function TaskRow({ node, expanded, onToggle, projects }: TaskRowProps) {
             )}
             <button
               onClick={() => setEditing(node.id)}
-              className="p-1 text-gray-400 hover:bg-gray-100 rounded"
+              className="p-1 text-gray-500 hover:bg-white/10 rounded"
               title="編集"
             >
               <Edit2 size={14} />
             </button>
             <button
               onClick={handleDelete}
-              className="p-1 text-red-400 hover:bg-red-50 rounded"
+              className="p-1 text-rose-400 hover:bg-white/10 rounded"
               title="削除"
             >
               <Trash2 size={14} />
@@ -407,10 +408,11 @@ function TaskRow({ node, expanded, onToggle, projects }: TaskRowProps) {
 export default function TasksPage() {
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [showAddEpic, setShowAddEpic] = useState(false)
+  const [showAiWizard, setShowAiWizard] = useState(false)
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => fetchTasks(),
+    queryFn: () => fetchTasksWithOffline(),
   })
 
   const tree = tasks ? buildTaskTree(tasks) : []
@@ -435,24 +437,37 @@ export default function TasksPage() {
         <div className="flex gap-2">
           <Link
             to="/tasks"
-            className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md font-medium"
+            className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md font-medium"
           >
             ツリー
           </Link>
           <Link
             to="/tasks/kanban"
-            className="px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-600 rounded-md hover:bg-gray-50 flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-400 rounded-md hover:bg-white/10 flex items-center gap-1.5"
           >
             <LayoutGrid size={14} />
             カンバン
           </Link>
+          <Link
+            to="/tasks/timeline"
+            className="px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-400 rounded-md hover:bg-white/10"
+          >
+            タイムライン
+          </Link>
         </div>
         <div className="flex gap-2">
-          <button onClick={expandAll} className="text-xs text-gray-500 hover:text-gray-700">すべて展開</button>
-          <button onClick={collapseAll} className="text-xs text-gray-500 hover:text-gray-700">すべて折りたたむ</button>
+          <button onClick={expandAll} className="text-xs text-gray-500 hover:text-gray-300">すべて展開</button>
+          <button onClick={collapseAll} className="text-xs text-gray-500 hover:text-gray-300">すべて折りたたむ</button>
+          <button
+            onClick={() => setShowAiWizard(true)}
+            className="px-3 py-1.5 text-sm bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-300 rounded-md hover:bg-fuchsia-500/30 flex items-center gap-1.5"
+          >
+            <Sparkles size={14} />
+            AI生成
+          </button>
           <button
             onClick={() => setShowAddEpic(true)}
-            className="px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-400 rounded-md hover:bg-white/10 flex items-center gap-1.5"
           >
             <Plus size={14} />
             Epic追加
@@ -469,19 +484,21 @@ export default function TasksPage() {
         />
       )}
 
+      {showAiWizard && <AiWbsWizard onClose={() => setShowAiWizard(false)} />}
+
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-[#111111] border border-white/5 rounded-md overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400">読み込み中...</div>
+          <div className="p-8 text-center text-gray-600">読み込み中...</div>
         ) : tree.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
+          <div className="p-8 text-center text-gray-600">
             タスクがありません。Epicを追加してください。
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
+                <tr className="border-b border-white/5 bg-white/[0.03]">
                   <th className="px-4 py-2.5 text-xs font-medium text-gray-500 uppercase tracking-wider">タイトル</th>
                   <th className="px-3 py-2.5 text-xs font-medium text-gray-500 hidden sm:table-cell">担当</th>
                   <th className="px-3 py-2.5 text-xs font-medium text-gray-500 hidden md:table-cell">期日</th>

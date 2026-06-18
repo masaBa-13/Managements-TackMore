@@ -1,5 +1,23 @@
 import { API_BASE } from './base'
 
+// ===== アプリ設定 =====
+
+export async function fetchAppSettings(): Promise<Record<string, string>> {
+  const res = await fetch(`${API_BASE}/api/settings`)
+  if (!res.ok) throw new Error('設定の取得に失敗しました')
+  return res.json()
+}
+
+export async function updateAppSettings(data: Record<string, string>): Promise<Record<string, string>> {
+  const res = await fetch(`${API_BASE}/api/settings`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('設定の保存に失敗しました')
+  return res.json()
+}
+
 // ===== カテゴリ =====
 
 export interface Category {

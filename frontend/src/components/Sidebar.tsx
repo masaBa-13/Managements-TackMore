@@ -18,32 +18,24 @@ const navItems = [
   { to: '/settings', label: '設定', icon: Settings },
 ]
 
-export default function Sidebar({ dark = false }: { dark?: boolean }) {
+export default function Sidebar() {
   return (
-    <aside className={clsx(
-      'w-56 min-h-screen flex flex-col transition-colors',
-      dark
-        ? 'bg-[#000000] border-r border-white/5'
-        : 'bg-white border-r border-gray-200'
-    )}>
+    <aside className="w-56 min-h-screen flex flex-col bg-white border-r border-[#DDE8E2]">
       {/* Brand */}
-      <div className={clsx('px-5 py-5 border-b', dark ? 'border-white/5' : 'border-gray-200')}>
-        <div className="flex items-center gap-2">
-          <div className={clsx(
-            'w-8 h-8 rounded-lg flex items-center justify-center',
-            dark ? 'bg-fuchsia-500' : 'bg-indigo-600'
-          )}>
+      <div className="px-5 py-5 border-b border-[#DDE8E2]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#3AAA6D]">
             <span className="text-white font-bold text-sm">T</span>
           </div>
           <div>
-            <div className={clsx('font-bold text-sm leading-tight', dark ? 'text-white' : 'text-gray-900')}>TackMore</div>
-            <div className={clsx('text-xs leading-tight', dark ? 'text-gray-600' : 'text-gray-500')}>Ops Dashboard</div>
+            <div className="font-bold text-sm leading-tight text-[#1A2330]">TackMore</div>
+            <div className="text-xs leading-tight text-[#8FA099]">Ops Dashboard</div>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-0.5">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -51,26 +43,26 @@ export default function Sidebar({ dark = false }: { dark?: boolean }) {
             end={item.end}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                dark
-                  ? isActive
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
-                  : isActive
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-[#EBF3EF] text-[#3AAA6D]'
+                  : 'text-[#6B7A8D] hover:bg-[#F4F9F6] hover:text-[#1A2330]'
               )
             }
           >
-            <item.icon size={18} />
-            {item.label}
+            {({ isActive }) => (
+              <>
+                <item.icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+                {item.label}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
       {/* Footer */}
-      <div className={clsx('px-5 py-4 border-t', dark ? 'border-white/5' : 'border-gray-200')}>
-        <p className={clsx('text-xs', dark ? 'text-gray-700' : 'text-gray-400')}>株式会社TackMore</p>
+      <div className="px-5 py-4 border-t border-[#DDE8E2]">
+        <p className="text-xs text-[#B0C4BA]">株式会社TackMore</p>
       </div>
     </aside>
   )

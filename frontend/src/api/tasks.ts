@@ -1,4 +1,5 @@
 import { API_BASE } from './base'
+import { saveTasks, loadTasks } from '../lib/offlineDb'
 
 export interface Task {
   id: number
@@ -53,6 +54,27 @@ export async function fetchTasks(params?: { project?: string; status?: string })
   return res.json()
 }
 
+export async function fetchTasksWithOffline(params?: { project?: string; status?: string }): Promise<Task[]> {
+  try {
+    const tasks = await fetchTasks(params)
+    // Persist full unfiltered list to IndexedDB
+    if (!params?.project && !params?.status) {
+      saveTasks(tasks).catch(() => {})
+    }
+    return tasks
+  } catch (error) {
+    // Offline fallback: load from IndexedDB
+    const cached = await loadTasks()
+    if (cached) {
+      let filtered = cached
+      if (params?.project) filtered = filtered.filter((t) => t.project === params.project)
+      if (params?.status) filtered = filtered.filter((t) => t.status === params.status)
+      return filtered
+    }
+    throw error
+  }
+}
+
 export async function fetchTask(id: number): Promise<Task> {
   const res = await fetch(`${API_BASE}/api/tasks/${id}`)
   if (!res.ok) throw new Error('タスクの取得に失敗しました')
@@ -102,6 +124,68 @@ export async function reorderTask(id: number, order_index: number): Promise<Task
   if (!res.ok) {
     const err = await res.json()
     throw new Error(err.error ?? '並び替えに失敗しました')
+  }
+  return res.json()
+}
+
+// AI WBS generation
+export interface AiWbsInput {
+  project_name?: string
+  goal: string
+  deadline?: string
+  members?: string[]
+}
+
+export interface AiWbsSubtask {
+  title: string
+  assignee?: string | null
+  priority?: string
+  estimated_days?: number
+}
+
+export interface AiWbsTask {
+  title: string
+  estimated_days?: number
+  subtasks: AiWbsSubtask[]
+}
+
+export interface AiWbsEpic {
+  title: string
+  tasks: AiWbsTask[]
+}
+
+export interface AiWbsResult {
+  project: string
+  deadline: string | null
+  wbs: AiWbsEpic[]
+}
+
+export async function generateWbs(data: AiWbsInput): Promise<AiWbsResult> {
+  const res = await fetch(`${API_BASE}/api/tasks/ai-generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error ?? 'WBS生成に失敗しました')
+  }
+  return res.json()
+}
+
+export async function confirmWbs(data: {
+  project: string
+  deadline?: string | null
+  epics: AiWbsEpic[]
+}): Promise<{ success: boolean; created_epics: number }> {
+  const res = await fetch(`${API_BASE}/api/tasks/ai-generate/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error ?? 'WBS登録に失敗しました')
   }
   return res.json()
 }

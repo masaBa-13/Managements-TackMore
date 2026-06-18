@@ -421,11 +421,13 @@ export interface MonthlyTrend {
   expense: number
   balance: number | null
   forecast_income: number
+  is_projection?: boolean
 }
 
-export async function fetchMonthlyTrend(months?: number, includeForecast?: boolean): Promise<MonthlyTrend[]> {
+export async function fetchMonthlyTrend(months?: number, includeForecast?: boolean, futureMonths?: number): Promise<MonthlyTrend[]> {
   const params = new URLSearchParams()
   if (months) params.set('months', String(months))
+  if (futureMonths) params.set('future_months', String(futureMonths))
   if (includeForecast) params.set('include_forecast', 'true')
   const res = await fetch(`${API_BASE}/api/finance/monthly-trend?${params}`)
   if (!res.ok) throw new Error('月次推移の取得に失敗しました')

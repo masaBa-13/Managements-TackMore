@@ -22,8 +22,8 @@ export default function FinanceSubNav() {
             clsx(
               'px-3 py-1.5 text-sm rounded-md font-medium',
               isActive
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                ? 'bg-fuchsia-500 text-white'
+                : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'
             )
           }
         >

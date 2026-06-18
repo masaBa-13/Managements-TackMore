@@ -14,9 +14,16 @@ function parseRow(row: Record<string, unknown>) {
 market.get('/', async (c) => {
   const tag = c.req.query('tag')
   const q = c.req.query('q')
+  const source = c.req.query('source')
 
   let query = 'SELECT * FROM market_notes WHERE 1=1'
   const params: unknown[] = []
+
+  if (source === 'auto') {
+    query += " AND created_by = 'system-auto'"
+  } else if (source === 'manual') {
+    query += " AND created_by != 'system-auto'"
+  }
 
   if (q) {
     query += ' AND (title LIKE ? OR content LIKE ?)'

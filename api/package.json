@@ -8,7 +8,8 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "hono": "latest"
+    "hono": "latest",
+    "idb": "^8.0.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "latest",

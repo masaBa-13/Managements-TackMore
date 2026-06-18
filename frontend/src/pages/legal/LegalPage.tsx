@@ -20,9 +20,9 @@ const statusLabel: Record<string, string> = {
 }
 
 const statusColor: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  in_progress: 'bg-blue-100 text-blue-700',
-  done: 'bg-green-100 text-green-700',
+  pending: 'bg-amber-500/20 text-amber-400',
+  in_progress: 'bg-sky-500/20 text-sky-400',
+  done: 'bg-emerald-500/20 text-emerald-400',
 }
 
 function getDaysUntil(dateStr: string): number {
@@ -35,9 +35,9 @@ function getDaysUntil(dateStr: string): number {
 function getUrgencyClass(item: LegalItem): string {
   if (item.status === 'done') return ''
   const days = getDaysUntil(item.due_date)
-  if (days < 0) return 'bg-red-50 border-l-4 border-red-500'
-  if (days <= 7) return 'bg-orange-50 border-l-4 border-orange-500'
-  if (days <= 30) return 'bg-yellow-50 border-l-4 border-yellow-400'
+  if (days < 0) return 'bg-rose-500/5 border-l-4 border-rose-500'
+  if (days <= 7) return 'bg-amber-500/5 border-l-4 border-amber-500'
+  if (days <= 30) return 'bg-amber-500/[0.03] border-l-4 border-amber-500/50'
   return ''
 }
 
@@ -73,7 +73,7 @@ function LegalForm({
     setForm((prev) => ({ ...prev, [field]: value }))
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+    <div className="bg-[#111111] border border-white/5 rounded-md p-4 space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
           <label className="block text-xs text-gray-500 mb-1">タイトル</label>
@@ -81,7 +81,7 @@ function LegalForm({
             type="text"
             value={form.title}
             onChange={(e) => set('title', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
             autoFocus
           />
         </div>
@@ -90,7 +90,7 @@ function LegalForm({
           <select
             value={form.category}
             onChange={(e) => set('category', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
           >
             {categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -101,8 +101,14 @@ function LegalForm({
             type="date"
             value={form.due_date}
             onChange={(e) => set('due_date', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            className={clsx(
+              'w-full bg-[#111111] border text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500',
+              !form.due_date ? 'border-rose-500/60' : 'border-white/10'
+            )}
           />
+          {!form.due_date && (
+            <p className="text-[10px] text-rose-400 mt-1">有効な日付を入力してください（例: 存在しない日付は無効）</p>
+          )}
         </div>
         {initial && (
           <div>
@@ -110,7 +116,7 @@ function LegalForm({
             <select
               value={form.status}
               onChange={(e) => set('status', e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+              className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
             >
               <option value="pending">未対応</option>
               <option value="in_progress">対応中</option>
@@ -124,18 +130,18 @@ function LegalForm({
             value={form.notes}
             onChange={(e) => set('notes', e.target.value)}
             rows={2}
-            className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm resize-none"
+            className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500 resize-none"
           />
         </div>
       </div>
       <div className="flex gap-2 justify-end">
-        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+        <button onClick={onClose} className="px-3 py-1.5 text-sm text-gray-400 hover:bg-white/5 rounded-md">
           キャンセル
         </button>
         <button
           onClick={() => onSubmit(form)}
           disabled={!form.title || !form.due_date || isPending}
-          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md hover:bg-fuchsia-600 disabled:opacity-50"
         >
           {isPending ? '保存中...' : '保存'}
         </button>
@@ -206,8 +212,8 @@ export default function LegalPage() {
               className={clsx(
                 'px-3 py-1.5 text-sm rounded-md',
                 filterStatus === s
-                  ? 'bg-indigo-600 text-white font-medium'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  ? 'bg-fuchsia-500 text-white font-medium'
+                  : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'
               )}
             >
               {s === '' ? 'すべて' : statusLabel[s]}
@@ -216,7 +222,7 @@ export default function LegalPage() {
         </div>
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-300 rounded-md hover:bg-white/10"
         >
           <Plus size={14} />
           追加
@@ -232,9 +238,9 @@ export default function LegalPage() {
       )}
 
       {isLoading ? (
-        <div className="p-8 text-center text-gray-400">読み込み中...</div>
+        <div className="p-8 text-center text-gray-600">読み込み中...</div>
       ) : items.length === 0 ? (
-        <div className="p-8 text-center text-gray-400">法務項目がありません</div>
+        <div className="p-8 text-center text-gray-600">法務項目がありません</div>
       ) : (
         <div className="space-y-2">
           {items.map((item) => {
@@ -247,15 +253,15 @@ export default function LegalPage() {
               <div key={item.id}>
                 <div
                   className={clsx(
-                    'bg-white border border-gray-200 rounded-xl p-4',
+                    'bg-[#111111] border border-white/5 rounded-md p-4',
                     getUrgencyClass(item)
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 space-y-1.5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-gray-900">{item.title}</span>
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                        <span className="text-sm font-medium text-gray-200">{item.title}</span>
+                        <span className="text-xs bg-white/10 text-gray-400 px-2 py-0.5 rounded">
                           {item.category}
                         </span>
                         <span className={clsx('text-xs px-2 py-0.5 rounded-full font-medium', statusColor[item.status])}>
@@ -267,7 +273,7 @@ export default function LegalPage() {
                         <span
                           className={clsx(
                             'font-medium',
-                            isOverdue ? 'text-red-600' : isUrgent ? 'text-orange-600' : isSoon ? 'text-yellow-600' : 'text-gray-500'
+                            isOverdue ? 'text-rose-400' : isUrgent ? 'text-amber-400' : isSoon ? 'text-amber-500/80' : 'text-gray-500'
                           )}
                         >
                           期日: {new Date(item.due_date).toLocaleDateString('ja-JP')}
@@ -277,7 +283,7 @@ export default function LegalPage() {
                             </span>
                           )}
                         </span>
-                        <span className="text-gray-400">作成: {new Date(item.created_at).toLocaleDateString('ja-JP')}</span>
+                        <span className="text-gray-600">作成: {new Date(item.created_at).toLocaleDateString('ja-JP')}</span>
                       </div>
 
                       {item.notes && (
@@ -288,7 +294,7 @@ export default function LegalPage() {
                     <div className="flex gap-1 shrink-0">
                       <button
                         onClick={() => setEditingId(item.id)}
-                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded"
+                        className="p-1.5 text-gray-500 hover:bg-white/10 rounded"
                       >
                         <Edit2 size={14} />
                       </button>
@@ -298,7 +304,7 @@ export default function LegalPage() {
                             deleteMutation.mutate(item.id)
                           }
                         }}
-                        className="p-1.5 text-red-400 hover:bg-red-50 rounded"
+                        className="p-1.5 text-rose-400 hover:bg-white/10 rounded"
                       >
                         <Trash2 size={14} />
                       </button>

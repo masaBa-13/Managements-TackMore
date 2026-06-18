@@ -14,10 +14,10 @@ function formatYen(amount: number): string {
 }
 
 const statusConfig = {
-  forecast: { label: '見込み', bg: 'bg-yellow-100 text-yellow-700' },
-  confirmed: { label: '確定', bg: 'bg-blue-100 text-blue-700' },
-  received: { label: '入金済', bg: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'キャンセル', bg: 'bg-gray-100 text-gray-500' },
+  forecast: { label: '見込み', bg: 'bg-amber-500/20 text-amber-400' },
+  confirmed: { label: '確定', bg: 'bg-sky-500/20 text-sky-400' },
+  received: { label: '入金済', bg: 'bg-emerald-500/20 text-emerald-400' },
+  cancelled: { label: 'キャンセル', bg: 'bg-white/10 text-gray-500' },
 }
 
 export default function ForecastPage() {
@@ -68,21 +68,21 @@ export default function ForecastPage() {
 
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-xs text-gray-500">入金見込み総額</div>
-          <div className="text-xl font-bold text-blue-700 mt-1">{formatYen(totalForecast)}</div>
+          <div className="text-xl font-bold text-sky-400 mt-1">{formatYen(totalForecast)}</div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4">
           <div className="text-xs text-gray-500">確度加重額</div>
-          <div className="text-xl font-bold text-gray-900 mt-1">{formatYen(weightedTotal)}</div>
-          <div className="text-xs text-gray-400">確度を反映した期待入金額</div>
+          <div className="text-xl font-bold text-gray-200 mt-1">{formatYen(weightedTotal)}</div>
+          <div className="text-xs text-gray-600">確度を反映した期待入金額</div>
         </div>
       </div>
 
       {/* Filter + Add */}
       <div className="flex items-center justify-between gap-3">
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1.5 text-sm">
+          className="bg-[#111111] border border-white/10 text-white rounded-md px-3 py-1.5 text-sm">
           <option value="">すべて</option>
           <option value="forecast">見込み</option>
           <option value="confirmed">確定</option>
@@ -90,35 +90,35 @@ export default function ForecastPage() {
           <option value="cancelled">キャンセル</option>
         </select>
         <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50">
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white/5 border border-white/10 text-gray-300 rounded-md hover:bg-white/10">
           <Plus size={14} /> 入金見込み追加
         </button>
       </div>
 
       {/* Form */}
       {showForm && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-          <div className="text-sm font-medium text-gray-800">新規入金見込み</div>
+        <div className="bg-[#111111] border border-white/5 rounded-md p-4 space-y-3">
+          <div className="text-sm font-medium text-gray-200">新規入金見込み</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-gray-500 mb-1">取引先</label>
               <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)}
-                placeholder="例: 株式会社ABC" className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                placeholder="例: 株式会社ABC" className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">件名</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
-                placeholder="例: HP管理費 6月分" className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                placeholder="例: HP管理費 6月分" className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">金額（円）</label>
               <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">入金予定日</label>
               <input type="date" value={expectedDate} onChange={(e) => setExpectedDate(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">カテゴリ</label>
@@ -127,16 +127,16 @@ export default function ForecastPage() {
             <div>
               <label className="block text-xs text-gray-500 mb-1">確度（%）</label>
               <input type="number" min={0} max={100} value={probability} onChange={(e) => setProbability(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
             <div className="sm:col-span-2">
               <label className="block text-xs text-gray-500 mb-1">備考</label>
               <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm" />
+                className="w-full bg-[#111111] border border-white/10 text-white placeholder:text-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-fuchsia-500" />
             </div>
           </div>
           <div className="flex gap-2 justify-end">
-            <button onClick={() => setShowForm(false)} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">キャンセル</button>
+            <button onClick={() => setShowForm(false)} className="px-3 py-1.5 text-sm text-gray-400 hover:bg-white/5 rounded-md">キャンセル</button>
             <button
               onClick={() => {
                 if (!clientName || !title || !amount || !expectedDate) return
@@ -147,7 +147,7 @@ export default function ForecastPage() {
                 })
               }}
               disabled={!clientName || !title || !amount || !expectedDate || createMutation.isPending}
-              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50">
+              className="px-3 py-1.5 text-sm bg-fuchsia-500 text-white rounded-md hover:bg-fuchsia-600 disabled:opacity-50">
               {createMutation.isPending ? '作成中...' : '作成'}
             </button>
           </div>
@@ -155,16 +155,16 @@ export default function ForecastPage() {
       )}
 
       {/* List */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-[#111111] border border-white/5 rounded-md overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400">読み込み中...</div>
+          <div className="p-8 text-center text-gray-600">読み込み中...</div>
         ) : forecasts.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">入金見込みがありません</div>
+          <div className="p-8 text-center text-gray-600">入金見込みがありません</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
+                <tr className="border-b border-white/5 bg-white/[0.03]">
                   <th className="px-3 py-2 text-xs font-medium text-gray-500">ステータス</th>
                   <th className="px-3 py-2 text-xs font-medium text-gray-500">取引先</th>
                   <th className="px-3 py-2 text-xs font-medium text-gray-500">件名</th>
@@ -197,33 +197,33 @@ function ForecastRow({ forecast: fc, onUpdate, onDelete }: {
 }) {
   const config = statusConfig[fc.status]
   return (
-    <tr className={clsx('border-b border-gray-100 hover:bg-gray-50', fc.status === 'cancelled' && 'opacity-50')}>
+    <tr className={clsx('border-b border-white/5 hover:bg-white/5', fc.status === 'cancelled' && 'opacity-50')}>
       <td className="px-3 py-2">
         <span className={clsx('text-xs px-2 py-0.5 rounded-full font-medium', config.bg)}>{config.label}</span>
       </td>
-      <td className="px-3 py-2 text-sm text-gray-700">{fc.client_name}</td>
-      <td className="px-3 py-2 text-sm text-gray-700">{fc.title}</td>
-      <td className="px-3 py-2 text-sm font-medium text-blue-600 text-right">{formatYen(fc.amount)}</td>
-      <td className="px-3 py-2 text-sm text-gray-600">{fc.probability}%</td>
-      <td className="px-3 py-2 text-sm text-gray-600">{fc.expected_date}</td>
+      <td className="px-3 py-2 text-sm text-gray-300">{fc.client_name}</td>
+      <td className="px-3 py-2 text-sm text-gray-300">{fc.title}</td>
+      <td className="px-3 py-2 text-sm font-medium text-sky-400 text-right">{formatYen(fc.amount)}</td>
+      <td className="px-3 py-2 text-sm text-gray-400">{fc.probability}%</td>
+      <td className="px-3 py-2 text-sm text-gray-400">{fc.expected_date}</td>
       <td className="px-3 py-2">
         <div className="flex items-center gap-1">
           {fc.status === 'forecast' && (
-            <button onClick={() => onUpdate({ status: 'confirmed' })} className="text-blue-500 hover:text-blue-700 p-1" title="確定">
+            <button onClick={() => onUpdate({ status: 'confirmed' })} className="text-sky-400 hover:text-sky-300 p-1" title="確定">
               <Clock size={14} />
             </button>
           )}
           {(fc.status === 'forecast' || fc.status === 'confirmed') && (
-            <button onClick={() => onUpdate({ status: 'received' })} className="text-green-500 hover:text-green-700 p-1" title="入金済">
+            <button onClick={() => onUpdate({ status: 'received' })} className="text-emerald-400 hover:text-emerald-300 p-1" title="入金済">
               <CheckCircle size={14} />
             </button>
           )}
           {fc.status !== 'cancelled' && fc.status !== 'received' && (
-            <button onClick={() => onUpdate({ status: 'cancelled' })} className="text-gray-400 hover:text-gray-600 p-1" title="キャンセル">
+            <button onClick={() => onUpdate({ status: 'cancelled' })} className="text-gray-500 hover:text-gray-400 p-1" title="キャンセル">
               <XCircle size={14} />
             </button>
           )}
-          <button onClick={onDelete} className="text-red-400 hover:text-red-600 p-1" title="削除">
+          <button onClick={onDelete} className="text-rose-400 hover:text-rose-300 p-1" title="削除">
             <Trash2 size={14} />
           </button>
         </div>
